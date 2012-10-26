@@ -4,7 +4,7 @@
 """
 Autor: Joerg Sorge
 Distributed under the terms of GNU GPL version 2 or later
-Copyright (C) Joerg Sorge joergsorge@gmail.com
+Copyright (C) Joerg Sorge joergsorge at googel
 2012-06-20
 
 Dieses Programm 
@@ -38,14 +38,16 @@ import daisy_creator_mag_s_ui
 
 #TODO:  Trenner in mag und abc ebenso anpassen (itemSecond zu left usw?
 #TODO:  2.Progress  daisy einbauen 
-#TODO:  config file read
+#TODO:  Progress Copy check value
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
-    """ The second parent must be 'Ui_<obj. name of main widget class>'.
-       
-       """
+    """ 
+    mainClass
+    The second parent must be 'Ui_<obj. name of main widget class>'.
+    """
  
     def __init__(self, parent=None):
+        """Settings"""
         super(DaisyCopy, self).__init__(parent)
         # This is because Python does not automatically
         # call the parent's constructor.
@@ -65,7 +67,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.connectActions()
     
     def connectActions(self):
-        """Actions definieren"""
+        """Define Actions """
         self.toolButtonCopySource.clicked.connect(self.actionOpenCopySource)
         self.toolButtonCopyDest.clicked.connect(self.actionOpenCopyDest)
         self.toolButtonCopyFile1.clicked.connect(self.actionOpenCounterFile)
@@ -100,7 +102,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
 
     def actionOpenCopySource(self):
-        """Quelle fuer copy"""
+        """Source of copy"""
         # QtCore.QDir.homePath() 
         dirSource = QtGui.QFileDialog.getExistingDirectory(
                         self,
@@ -115,7 +117,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(dirSource)
     
     def actionOpenDaisySource(self):
-        """Quelle fuer daisy"""
+        """Source of daisy"""
         dirSource = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Quell-Ordner",
@@ -129,7 +131,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(dirSource)
     
     def actionOpenCopyDest(self):
-        """Ziel fuer Copy"""
+        """Destination of Copy"""
         dirDest = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Ziel-Ordner",
@@ -143,7 +145,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(dirDest)
     
     def actionOpenCounterFile(self):
-        """Counterdatei zur Steuerung"""
+        """Counterdatei for Steuerung"""
         file1 = QtGui.QFileDialog.getOpenFileName (
                         self,
                         "Counter-Datei",
@@ -262,9 +264,10 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     
                     # dateiname nicht gefunden
                     if zCounterFiles == 0:
-                        self.textEdit.append("<b><font color='red'>Dateiname stimmt nicht ueberein</font></b>:")
+                        self.textEdit.append("<b><font color='red'>Dateiname in Counterdatei nicht gefunden</font></b>:")
                         self.textEdit.append( ntpath.basename(str(fileToCopySource)))
-                        continue
+                        self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
+                        return
                     
                     self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
                     self.showDebugMessage( fileToCopySource )
