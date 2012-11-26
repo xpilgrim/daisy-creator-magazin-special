@@ -36,9 +36,10 @@ from mutagen.id3 import ID3NoHeaderError
 import ConfigParser
 import daisy_creator_mag_s_ui
 
-#TODO:  Trenner in mag und abc ebenso anpassen (itemSecond zu left usw?
 #TODO:  2.Progress  daisy einbauen 
-#TODO:  Progress Copy check value
+#TODO:  Progress Copy  value not correct after finish
+#TODO: Intro, Ausgabe, Metafile wenn file nicht gefunden filename anzeigen
+#TODO: Hilfe-Datei einbinden
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     """ 
@@ -99,7 +100,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.app_bhzPfadAusgabeansage  = config.get('Ordner', 'BHZ-Ausgabeansage')
         self.app_bhzPfadIntro  = config.get('Ordner', 'BHZ-Intro')
         self.app_bhzItems  = config.get('Blindenhoerzeitschriften', 'BHZ').split(",")
-
 
     def actionOpenCopySource(self):
         """Source of copy"""
@@ -298,7 +298,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         if self.checkBoxCopyBhzAusgAnsage.isChecked():
             self.copyAusgabeAnsage()
         
-        # TODO: Hier weiter
         # Metadaten laden
         self.lineEditMetaSource.setText(self.app_bhzPfadMeta + "/Daisy_Meta_" + self.comboBoxCopyBhz.currentText()  )
         self.metaLoadFile()
@@ -605,26 +604,10 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     fOutFile.write('<h1 class="title" id="cnt_0001"><a href="0001.smil#txt_0001">' + self.lineEditMetaAutor.text()+ ": " + self.lineEditMetaTitle.text() + '</a></h1>'+ '\r\n')
                     continue
                 # trennen
-                if self.comboBoxDaisyTrenner.currentText()=="Ausgabe-Nr.":
-                    itemSplit = item.split(self.comboBoxCopyBhzAusg.currentText()+"_")
-                    print itemSplit
-                    print len(itemSplit)
-                else:
-                    itemSplit = item.split(self.comboBoxDaisyTrenner.currentText())
-                
-                # erster Teil Autor
-                # Unterstriche durch Leerzeichen ersetzen, zwei Stellen (Counterzahl weglassen ([2:])
-                cAuthor = re.sub ("_", " ", itemSplit[0]  )[2:]
-                # letzter teil Title
-                itemSecond = itemSplit[len(itemSplit)-1]
-                # davon file-ext abtrennen
-                itemTitle = itemSecond.split(".mp3")
-                print itemSplit
-                print itemSplit[0]
-                print itemSplit[1]
-                # Unterrstriche durch Leerzeichen ersetzen
-                cTitle = re.sub ("_", " ", itemTitle[0]  ) 
-                
+                # Neu noch nicht fertig
+                itemSplit = self.splitFilename( item)
+                cAuthor = self.extractAuthor( itemSplit)  
+                cTitle = self.extractTitle( itemSplit)                  
                 fOutFile.write('<h'+ str(self.spinBoxEbenen.value())+' id="cnt_'+str(z).zfill(4)+'"><a href="'+str(z).zfill(4)+'.smil#txt_'+str(z).zfill(4)+'">'+ cAuthor +" - " + cTitle + '</a></h1>'+ '\r\n')
                            
             fOutFile.write( "</body>"+ '\r\n')
@@ -661,22 +644,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             for item in dirAudios:
                 z +=1
                 # trennen
-                if self.comboBoxDaisyTrenner.currentText()=="Ausgabe-Nr.":
-                    itemSplit = item.split(self.comboBoxCopyBhzAusg.currentText()+"_")
-                else:
-                    itemSplit = item.split(self.comboBoxDaisyTrenner.currentText())
-                # erster Teil Autor
-                # Unterstriche durch Leerzeichen ersetzen, zwei Stellen (Counterzahl weglassen ([2:])
-                cAuthor = re.sub ("_", " ", itemSplit[0]  )[2:]
-                # letzter teil Title
-                itemSecond = itemSplit[len(itemSplit)-1]
-                # davon file-ext abtrennen
-                itemTitle = itemSecond.split(".mp3")
-                print itemSplit
-                # Unterrstriche durch Leerzeichen ersetzen
-                cTitle = re.sub ("_", " ", itemTitle[0]  ) 
-                
-                #fOutFile.write('<ref src="'+str(z).zfill(4)+'.smil" title="' + itemTitle[0] + '" id="smil_' + str(z).zfill(4) + '"/>'+'\r\n')
+                itemSplit = self.splitFilename( item)
+                cAuthor = self.extractAuthor( itemSplit)  
+                cTitle = self.extractTitle( itemSplit)  
                 fOutFile.write('<ref src="'+str(z).zfill(4)+'.smil" title="' +cAuthor + " - " +cTitle + '" id="smil_' + str(z).zfill(4) + '"/>'+'\r\n')
             
             fOutFile.write( '</body>'+'\r\n')
@@ -697,19 +667,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             else:
                 self.textEditDaisy.append( str(z).zfill(4) +u".smil - File schreiben")
                 # trennen
-                if self.comboBoxDaisyTrenner.currentText()=="Ausgabe-Nr.":
-                    itemSplit = item.split(self.comboBoxCopyBhzAusg.currentText()+"_")
-                else:
-                    itemSplit = item.split(self.comboBoxDaisyTrenner.currentText())
-                # erster Teil Autor
-                # Unterstriche durch Leerzeichen ersetzen, zwei Stellen (Counterzahl weglassen ([2:])
-                cAuthor = re.sub ("_", " ", itemSplit[0]  )[2:]
-                # letzter teil Title
-                itemSecond = itemSplit[len(itemSplit)-1]
-                # davon file-ext abtrennen
-                itemTitle = itemSecond.split(".mp3")
-                print itemSplit
-                # Unterrstriche durch Leerzeichen ersetzen
+                itemSplit = self.splitFilename( item)
+                cAuthor = self.extractAuthor( itemSplit)  
+                cTitle = self.extractTitle( itemSplit)  
                 
                 fOutFile.write( '<?xml version="1.0" encoding="utf-8"?>'+ '\r\n' )
                 fOutFile.write( '<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
@@ -726,8 +686,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     totalElapsedTimeMilliMicro = "000"
                 else:
                     totalElapsedTimeMilliMicro = splittedTtotalElapsedTime[1][0:3] 
-                #fOutFile.write( '<meta name="ncc:totalElapsedTime" content="' + str(lTotalElapsedTime[z-1] )+ '"/>')
-                #fOutFile.write( '<meta name="ncc:totalElapsedTime" content="' + str( totalElapsedTime )+ '"/>'+'\r\n')
+
                 fOutFile.write( '<meta name="ncc:totalElapsedTime" content="' +totalElapsedTimehhmmss + "." + totalElapsedTimeMilliMicro +'"/>'+'\r\n')
                 
                 fileTime = timedelta(seconds = lFileTime[z-1])
@@ -742,22 +701,16 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 else:
                     fileTimeMilliMicro = "000"
                 
-                #fOutFile.write( '<meta name="ncc:timeInThisSmil" content="' + str(lFileTime[z-1]) + '" />'+'\r\n')
-
                 fOutFile.write( '<meta name="ncc:timeInThisSmil" content="' + FileTimehhmmss + "." + fileTimeMilliMicro +'" />'+'\r\n')
                 fOutFile.write( '<meta name="dc:format" content="Daisy 2.02"/>'+'\r\n')
                 fOutFile.write( '<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>'+'\r\n')
-                cTitle = re.sub ("_", " ", itemTitle[0]  ) 
-                #fOutFile.write( '<meta name="dc:title" content="' +  itemTitle[0]  + '"/>'+'\r\n')
                 fOutFile.write( '<meta name="dc:title" content="' +  cTitle  + '"/>'+'\r\n')
                 fOutFile.write( '<layout>'+'\r\n')
                 fOutFile.write( '<region id="txt-view"/>'+'\r\n')
                 fOutFile.write( '</layout>'+'\r\n')
                 fOutFile.write( '</head>'+'\r\n')
                 fOutFile.write( '<body>'+'\r\n')
-                #fOutFile.write( '<seq dur="' + FileTimehhmmss + '.' + fileTimeMilliMicro + 's">'+'\r\n')
                 lFileTimeSeconds = str(lFileTime[z-1]).split(".")
-                
                 fOutFile.write( '<seq dur="' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro  +'s">'+'\r\n')
                 fOutFile.write( '<par endsync="last">'+'\r\n')
                 fOutFile.write( '<text src="ncc.html#cnt_' + str(z).zfill(4) + '" id="txt_' + str(z).zfill(4) + '" />'+'\r\n')
@@ -782,7 +735,31 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 fOutFile.write('</smil>'+'\r\n')
                 fOutFile.close
 
-
+    def splitFilename(self,  item):
+        """split filename into list"""
+        if self.comboBoxDaisyTrenner.currentText()=="_-_":
+            itemSplit = item.split(self.comboBoxDaisyTrenner.currentText())
+            #itemSplit = item.split("_", 2)
+        self.showDebugMessage( "split filename into list" )
+        self.showDebugMessage( itemSplit )
+        self.showDebugMessage( len(itemSplit))
+        return itemSplit
+    
+    def extractAuthor(self, itemSplit):
+        """extract author """
+        return re.sub ("_", " ", itemSplit[0]  )[2:]
+    
+    def extractTitle(self, itemSplit):
+        """extract title """
+        # letzter teil
+        itemLeft = itemSplit[len(itemSplit)-1]
+        # davon file-ext abtrennen
+        itemTitle = itemLeft.split(".mp3")
+        cTitle = re.sub ("_", " ", itemTitle[0]  )
+        self.showDebugMessage( "extract title" ) 
+        self.showDebugMessage( cTitle ) 
+        return cTitle
+    
     def showDialogCritical(self,  errorMessage):
         QtGui.QMessageBox.critical(self, "Achtung", errorMessage)
     
