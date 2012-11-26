@@ -604,7 +604,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     fOutFile.write('<h1 class="title" id="cnt_0001"><a href="0001.smil#txt_0001">' + self.lineEditMetaAutor.text()+ ": " + self.lineEditMetaTitle.text() + '</a></h1>'+ '\r\n')
                     continue
                 # trennen
-                # Neu noch nicht fertig
                 itemSplit = self.splitFilename( item)
                 cAuthor = self.extractAuthor( itemSplit)  
                 cTitle = self.extractTitle( itemSplit)                  
