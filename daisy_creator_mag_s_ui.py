@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'daisy_creator_mag_s.ui'
 #
-# Created: Sat Oct 20 10:54:24 2012
+# Created: Mon Feb 18 09:45:34 2013
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -27,10 +27,10 @@ class Ui_DaisyMain(object):
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.tab = QtGui.QWidget()
         self.tab.setObjectName(_fromUtf8("tab"))
-        self.pushButton = QtGui.QPushButton(self.tab)
-        self.pushButton.setGeometry(QtCore.QRect(640, 640, 111, 27))
-        self.pushButton.setText(QtGui.QApplication.translate("DaisyMain", "Quit", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        self.pushButtonClose1 = QtGui.QPushButton(self.tab)
+        self.pushButtonClose1.setGeometry(QtCore.QRect(640, 640, 111, 27))
+        self.pushButtonClose1.setText(QtGui.QApplication.translate("DaisyMain", "Quit", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonClose1.setObjectName(_fromUtf8("pushButtonClose1"))
         self.lineEditFileCounter = QtGui.QLineEdit(self.tab)
         self.lineEditFileCounter.setGeometry(QtCore.QRect(24, 182, 610, 27))
         self.lineEditFileCounter.setText(QtGui.QApplication.translate("DaisyMain", "Counter-Datei waehlen", None, QtGui.QApplication.UnicodeUTF8))
@@ -79,10 +79,10 @@ class Ui_DaisyMain(object):
         self.lineEditCopyDest.setGeometry(QtCore.QRect(24, 126, 610, 27))
         self.lineEditCopyDest.setText(QtGui.QApplication.translate("DaisyMain", "Ziel-Ordner", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEditCopyDest.setObjectName(_fromUtf8("lineEditCopyDest"))
-        self.progressBar = QtGui.QProgressBar(self.tab)
-        self.progressBar.setGeometry(QtCore.QRect(24, 641, 610, 25))
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName(_fromUtf8("progressBar"))
+        self.progressBarCopy = QtGui.QProgressBar(self.tab)
+        self.progressBarCopy.setGeometry(QtCore.QRect(24, 641, 610, 25))
+        self.progressBarCopy.setProperty("value", 24)
+        self.progressBarCopy.setObjectName(_fromUtf8("progressBarCopy"))
         self.checkBoxCopyID3Change = QtGui.QCheckBox(self.tab)
         self.checkBoxCopyID3Change.setEnabled(True)
         self.checkBoxCopyID3Change.setGeometry(QtCore.QRect(332, 368, 301, 22))
@@ -274,6 +274,14 @@ class Ui_DaisyMain(object):
         self.label_14.setGeometry(QtCore.QRect(250, 250, 91, 21))
         self.label_14.setText(QtGui.QApplication.translate("DaisyMain", "Anzahl Seiten", None, QtGui.QApplication.UnicodeUTF8))
         self.label_14.setObjectName(_fromUtf8("label_14"))
+        self.progressBarDaisy = QtGui.QProgressBar(self.tab_2)
+        self.progressBarDaisy.setGeometry(QtCore.QRect(24, 641, 610, 25))
+        self.progressBarDaisy.setProperty("value", 24)
+        self.progressBarDaisy.setObjectName(_fromUtf8("progressBarDaisy"))
+        self.pushButtonClose2 = QtGui.QPushButton(self.tab_2)
+        self.pushButtonClose2.setGeometry(QtCore.QRect(640, 640, 111, 27))
+        self.pushButtonClose2.setText(QtGui.QApplication.translate("DaisyMain", "Quit", None, QtGui.QApplication.UnicodeUTF8))
+        self.pushButtonClose2.setObjectName(_fromUtf8("pushButtonClose2"))
         self.tabWidget.addTab(self.tab_2, _fromUtf8(""))
         self.tab_4 = QtGui.QWidget()
         self.tab_4.setObjectName(_fromUtf8("tab_4"))

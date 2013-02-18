@@ -242,7 +242,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     # max Anzahl korrigieren und Progress aktualisieren
                     zList = zList -1
                     pZ = z *100 / zList 
-                    self.progressBar.setValue(pZ)
+                    self.progressBarCopy.setValue(pZ)
                 
                 self.showDebugMessage( fileToCopySource )
                 # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
@@ -288,7 +288,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     self.showDebugMessage( zList )
                     pZ = z *100 / zList 
                     self.showDebugMessage( pZ )
-                    self.progressBar.setValue(pZ)
+                    self.progressBarCopy.setValue(pZ)
                 else:
                     self.textEdit.append("<b>Uebersprungen</b>:")
                     self.textEdit.append(fileToCopySource)
@@ -771,7 +771,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def main(self):
         self.showDebugMessage( u"let's rock" )
         self.readConfig()
-        self.progressBar.setValue(0)
+        self.progressBarCopy.setValue(0)
         self.progressBarDaisy.setValue(0)
         # Bhz in Combo
         for item in self.app_bhzItems:
