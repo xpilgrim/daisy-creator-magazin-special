@@ -78,7 +78,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.commandLinkButtonMeta.clicked.connect(self.metaLoadFile)
         self.commandLinkButtonDaisy.clicked.connect(self.actionRunDaisy)
         self.toolButtonDaisySource.clicked.connect(self.actionOpenDaisySource)
-        self.pushButton.clicked.connect(self.actionQuit)
+        self.pushButtonClose1.clicked.connect(self.actionQuit)
+        self.pushButtonClose2.clicked.connect(self.actionQuit)
 
     def readConfig(self ):
         """read Config from file"""
@@ -482,6 +483,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             logMessage = u"read_files_from_dir Error: %s" % str(e)
             self.showDebugMessage( logMessage)
         
+        self.progressBarDaisy.setValue(10)
         self.showDebugMessage( dirItems )
         self.textEditDaisy.append(u"<b>Folgende Audios werden bearbeitet:</b>")
         zMp3 = 0
@@ -509,8 +511,11 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         #str(cTotalTime[0]).zfill(8) 
         self.textEditDaisy.append(u"Gesamtlaenge: " + cTotalTime)
         self.writeNCC( cTotalTime,  zMp3,  dirAudios)
+        self.progressBarDaisy.setValue(20)
         self.writeMasterSmil( cTotalTime,  dirAudios)
+        self.progressBarDaisy.setValue(50)
         self.writeSmil( lTotalElapsedTime,  lFileTime, dirAudios)
+        self.progressBarDaisy.setValue(100)
     
     def calcAudioLengt(self,  dirAudios):
         """Gesamtlange der Audios ermitteln"""
@@ -767,6 +772,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.showDebugMessage( u"let's rock" )
         self.readConfig()
         self.progressBar.setValue(0)
+        self.progressBarDaisy.setValue(0)
         # Bhz in Combo
         for item in self.app_bhzItems:
             self.comboBoxCopyBhz.addItem(item)
