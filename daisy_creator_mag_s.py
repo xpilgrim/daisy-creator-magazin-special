@@ -41,7 +41,6 @@ import daisy_creator_mag_s_ui
 #TODO: Hilfe-Datei einbinden
 #TODO: Source, Dest checks from daisy_creator_mag
 #TODO: Correction of checks for depth from daisy_creator_mag
-#TODO: Ebenen zu Level umbenennen
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     """ 
@@ -567,7 +566,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             fOutFile.write( '<meta name="ncc:sidebars" content="0"/>'+ '\r\n')
             fOutFile.write( '<meta name="ncc:prodNotes" content="0"/>'+ '\r\n')
             fOutFile.write( '<meta name="ncc:footnotes" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:depth" content="' + str(self.spinBoxEbenen.value())+ '"/>'+ '\r\n')
+            fOutFile.write( '<meta name="ncc:depth" content="' + str(self.spinBoxLevel.value())+ '"/>'+ '\r\n')
             fOutFile.write( '<meta name="ncc:maxPageNormal" content="' +str(self.spinBoxPages.value()) +'"/>'+ '\r\n')
             fOutFile.write( '<meta name="ncc:charset" content="utf-8"/>'+ '\r\n')
             fOutFile.write( '<meta name="ncc:multimediaType" content="audioNcc"/>'+ '\r\n')
@@ -608,7 +607,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 itemSplit = self.splitFilename( item)
                 cAuthor = self.extractAuthor( itemSplit)  
                 cTitle = self.extractTitle( itemSplit)                  
-                fOutFile.write('<h'+ str(self.spinBoxEbenen.value())+' id="cnt_'+str(z).zfill(4)+'"><a href="'+str(z).zfill(4)+'.smil#txt_'+str(z).zfill(4)+'">'+ cAuthor +" - " + cTitle + '</a></h1>'+ '\r\n')
+                fOutFile.write('<h'+ str(self.spinBoxLevel.value())+' id="cnt_'+str(z).zfill(4)+'"><a href="'+str(z).zfill(4)+'.smil#txt_'+str(z).zfill(4)+'">'+ cAuthor +" - " + cTitle + '</a></h1>'+ '\r\n')
                            
             fOutFile.write( "</body>"+ '\r\n')
             fOutFile.write( "</html>"+ '\r\n')
@@ -805,7 +804,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.checkBoxCopyID3Change.setChecked(True)
         self.checkBoxCopyBitrateChange.setChecked(True)
         # Vorbelegung spinboxen
-        self.spinBoxEbenen.setValue(1)
+        self.spinBoxLevel.setValue(1)
         self.spinBoxPages.setValue(0)
         self.show()
  

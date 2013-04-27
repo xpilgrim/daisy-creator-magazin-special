@@ -748,7 +748,7 @@
          <string>Daisyfizieren</string>
         </property>
        </widget>
-       <widget class="QSpinBox" name="spinBoxEbenen">
+       <widget class="QSpinBox" name="spinBoxLevel">
         <property name="geometry">
          <rect>
           <x>130</x>

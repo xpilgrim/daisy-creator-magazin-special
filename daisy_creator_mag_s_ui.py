@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'daisy_creator_mag_s.ui'
 #
-# Created: Mon Feb 18 09:45:34 2013
+# Created: Sat Apr 27 17:59:16 2013
 #      by: PyQt4 UI code generator 4.8.5
 #
 # WARNING! All changes made in this file will be lost!
@@ -260,9 +260,9 @@ class Ui_DaisyMain(object):
         self.commandLinkButtonDaisy.setGeometry(QtCore.QRect(640, 420, 111, 191))
         self.commandLinkButtonDaisy.setText(QtGui.QApplication.translate("DaisyMain", "Daisyfizieren", None, QtGui.QApplication.UnicodeUTF8))
         self.commandLinkButtonDaisy.setObjectName(_fromUtf8("commandLinkButtonDaisy"))
-        self.spinBoxEbenen = QtGui.QSpinBox(self.tab_2)
-        self.spinBoxEbenen.setGeometry(QtCore.QRect(130, 250, 59, 27))
-        self.spinBoxEbenen.setObjectName(_fromUtf8("spinBoxEbenen"))
+        self.spinBoxLevel = QtGui.QSpinBox(self.tab_2)
+        self.spinBoxLevel.setGeometry(QtCore.QRect(130, 250, 59, 27))
+        self.spinBoxLevel.setObjectName(_fromUtf8("spinBoxLevel"))
         self.label = QtGui.QLabel(self.tab_2)
         self.label.setGeometry(QtCore.QRect(30, 250, 121, 21))
         self.label.setText(QtGui.QApplication.translate("DaisyMain", "Anzahl Ebenen", None, QtGui.QApplication.UnicodeUTF8))
