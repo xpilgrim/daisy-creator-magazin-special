@@ -36,11 +36,12 @@ from mutagen.id3 import ID3NoHeaderError
 import ConfigParser
 import daisy_creator_mag_s_ui
 
-#TODO: 2.Progress  daisy einbauen 
+#TODO: Check for special characters in filenames
 #TODO: Intro, Ausgabe, Metafile wenn file nicht gefunden filename anzeigen
 #TODO: Hilfe-Datei einbinden
 #TODO: Source, Dest checks from daisy_creator_mag
 #TODO: Correction of checks for depth from daisy_creator_mag
+#TODO: Ebenen zu Level umbenennen
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     """ 
