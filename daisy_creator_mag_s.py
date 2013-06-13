@@ -230,68 +230,71 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         dirsSource.sort()
         # files durchgehen
         for item in dirsSource:
-            if item[ len(item)-4:len(item) ] == ".MP3" or item[ len(item)-4:len(item) ] == ".mp3":
-                fileToCopySource = self.lineEditCopySource.text() + "/" + item 
-                # pruefen ob file exists
-                fileNotExist = None
-                try:
-                    with open( fileToCopySource ) as f: pass
-                except IOError as e:
-                    self.showDebugMessage(  u"File not exists" )
-                    fileNotExist = "yes"
-                    # max Anzahl korrigieren und Progress aktualisieren
-                    zList = zList -1
-                    pZ = z *100 / zList 
-                    self.progressBarCopy.setValue(pZ)
+            if (item[ len(item)-4:len(item) ] != ".MP3" 
+                            and item[ len(item)-4:len(item) ] != ".mp3"):
+                continue
                 
+            fileToCopySource = self.lineEditCopySource.text() + "/" + item 
+            # pruefen ob file exists
+            fileNotExist = None
+            try:
+                with open( fileToCopySource ) as f: pass
+            except IOError as e:
+                self.showDebugMessage(  u"File not exists" )
+                fileNotExist = "yes"
+                # max Anzahl korrigieren und Progress aktualisieren
+                zList = zList -1
+                pZ = z *100 / zList 
+                self.progressBarCopy.setValue(pZ)
+                
+            self.showDebugMessage( fileToCopySource )
+            # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
+            # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
+            if  fileNotExist is None:
+                # Dateiname in counterDatei suchen, Counter extrahieren und in Dateiname
+                zCounterFiles =0
+                for line in counterLines:
+                    if line.find(item) != -1:
+                        # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen, 
+                        # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind 
+                        # wird der rest, der uebereinstimmt gefunden
+                        zCounterFiles +=1
+                        #self.textEdit.append(u"counterline"+ line)
+                        self.showDebugMessage(  u"counterline"+ line)
+                        #self.showDebugMessage(  u"counter"+ line[9:11])
+                        self.showDebugMessage(  u"counter"+ line[0:02])
+                        # Counter vorne dran
+                        zFileCount = zCounter + int(line[0:02] )
+                        #fileToCopyDest = self.lineEditCopyDest.text() + "/" + line[9:11] + "_" + item
+                        fileToCopyDest = self.lineEditCopyDest.text() + "/" + str(zFileCount).zfill(2) + "_" + item
+                    
+                # dateiname nicht gefunden
+                if zCounterFiles == 0:
+                    self.textEdit.append("<b><font color='red'>Dateiname in Counterdatei nicht gefunden</font></b>:")
+                    self.textEdit.append( ntpath.basename(str(fileToCopySource)))
+                    self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
+                    return
+                    
+                self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
                 self.showDebugMessage( fileToCopySource )
-                # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
-                # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
-                if  fileNotExist is None:
-                    # Dateiname in counterDatei suchen, Counter extrahieren und in Dateiname
-                    zCounterFiles =0
-                    for line in counterLines:
-                        if line.find(item) != -1:
-                            # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen, 
-                            # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind 
-                            # wird der rest, der uebereinstimmt gefunden
-                            zCounterFiles +=1
-                            #self.textEdit.append(u"counterline"+ line)
-                            self.showDebugMessage(  u"counterline"+ line)
-                            #self.showDebugMessage(  u"counter"+ line[9:11])
-                            self.showDebugMessage(  u"counter"+ line[0:02])
-                            # Counter vorne dran
-                            zFileCount = zCounter + int(line[0:02] )
-                            #fileToCopyDest = self.lineEditCopyDest.text() + "/" + line[9:11] + "_" + item
-                            fileToCopyDest = self.lineEditCopyDest.text() + "/" + str(zFileCount).zfill(2) + "_" + item
+                self.showDebugMessage( fileToCopyDest )
                     
-                    # dateiname nicht gefunden
-                    if zCounterFiles == 0:
-                        self.textEdit.append("<b><font color='red'>Dateiname in Counterdatei nicht gefunden</font></b>:")
-                        self.textEdit.append( ntpath.basename(str(fileToCopySource)))
-                        self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
-                        return
-                    
-                    self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
-                    self.showDebugMessage( fileToCopySource )
-                    self.showDebugMessage( fileToCopyDest )
-                    
-                    # Bitrate checken, eventuell aendern und gleich in Ziel neu encodieren
-                    isChangedAndCopy = self.checkChangeBitrateAndCopy( fileToCopySource,  fileToCopyDest )
-                    # nicht geaendert also kopieren
-                    if  isChangedAndCopy is None: 
-                        self.copyFile( fileToCopySource, fileToCopyDest)
-                    
-                    self.checkCangeId3( fileToCopyDest)
-                    z +=1
-                    self.showDebugMessage( z )
-                    self.showDebugMessage( zList )
-                    pZ = z *100 / zList 
-                    self.showDebugMessage( pZ )
-                    self.progressBarCopy.setValue(pZ)
-                else:
-                    self.textEdit.append("<b>Uebersprungen</b>:")
-                    self.textEdit.append(fileToCopySource)
+                # Bitrate checken, eventuell aendern und gleich in Ziel neu encodieren
+                isChangedAndCopy = self.checkChangeBitrateAndCopy( fileToCopySource,  fileToCopyDest )
+                # nicht geaendert also kopieren
+                if  isChangedAndCopy is None: 
+                    self.copyFile( fileToCopySource, fileToCopyDest)
+
+                self.checkCangeId3( fileToCopyDest)
+                z +=1
+                self.showDebugMessage( z )
+                self.showDebugMessage( zList )
+                pZ = z *100 / zList 
+                self.showDebugMessage( pZ )
+                self.progressBarCopy.setValue(pZ)
+            else:
+                self.textEdit.append("<b>Uebersprungen</b>:")
+                self.textEdit.append(fileToCopySource)
         
         self.showDebugMessage( z )
         
@@ -798,6 +801,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.comboBoxPrefBitrate.addItem("64")
         self.comboBoxPrefBitrate.addItem("96")
         self.comboBoxPrefBitrate.addItem("128")
+        self.comboBoxPrefBitrate.setCurrentIndex(1)
         # Vorbelegung Checkboxen
         self.checkBoxCopyBhzIntro.setChecked(True)
         self.checkBoxCopyBhzAusgAnsage.setChecked(True)
