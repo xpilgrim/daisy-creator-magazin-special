@@ -37,10 +37,12 @@ import ConfigParser
 import daisy_creator_mag_s_ui
 
 #TODO: Check for special characters in filenames
-#TODO: Intro, Ausgabe, Metafile wenn file nicht gefunden filename anzeigen
+# Intro, Ausgabe, Metafile wenn file nicht gefunden filename anzeigen
 #TODO: Hilfe-Datei einbinden
-#TODO: Source, Dest checks from daisy_creator_mag
+# Source, Dest checks from daisy_creator_mag
 #TODO: Correction of checks for depth from daisy_creator_mag
+#TODO: try exept in write ncc und smil wie in daisy_creator_mag korrigieren
+#TODO: checkChangeBitrateAndCopy if korrigiern wie in daisy_creator_mag
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     """ 
@@ -209,11 +211,20 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.showDebugMessage(  self.lineEditCopySource.text() )
         self.showDebugMessage(  self.lineEditCopyDest.text() )
         
+        # check for files in source
         try:
             dirsSource = os.listdir( self.lineEditCopySource.text())
         except Exception, e:
             logMessage = u"read_files_from_dir Error: %s" % str(e)
             self.showDebugMessage( logMessage)
+        
+        # ceck dir of dest
+        if os.path.exists(self.lineEditCopyDest.text() ) is False:
+            errorMessage = u"Ziel-Ordner existiert nicht.."
+            self.showDebugMessage( errorMessage)
+            self.showDialogCritical( errorMessage )
+            self.lineEditCopyDest.setFocus()
+            return
         
         self.showDebugMessage( dirsSource )
         # Anfangswert des Counters erhoehen wenn AusgAnsage und/oder Intro kopiert werden
@@ -459,6 +470,20 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             return None
     
     def metaLoadFile(self ):
+        fileNotExist = None
+        try:
+            with open( str(self.lineEditMetaSource.text()) ) as f: pass
+        except IOError as e:
+            self.showDebugMessage(  u"File not exists" )
+            self.textEdit.append(
+                "<font color='red'>"
+                +"Meta-Datei konnte nicht geladen werden</font>: " 
+                + os.path.basename(str(self.lineEditMetaSource.text())))   
+            fileNotExist = "yes"
+        
+        if  fileNotExist is not None:
+            return
+            
         config = ConfigParser.RawConfigParser()
         # Pfad von QTString in String  umwandeln
         config.read(str(self.lineEditMetaSource.text()))
