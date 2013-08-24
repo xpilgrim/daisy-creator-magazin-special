@@ -7,18 +7,18 @@ Distributed under the terms of GNU GPL version 2 or later
 Copyright (C) Joerg Sorge joergsorge at googel
 2012-06-20
 
-Dieses Programm 
+Dieses Programm
 - kopiert mp3-Files fuer die Verarbeitung zu Daisy-Buechern
-- erzeugt die noetigen Dateien fuer eine Daisy-Struktur. 
+- erzeugt die noetigen Dateien fuer eine Daisy-Struktur.
 
-Zusatz-Modul benoetigt: 
+Zusatz-Modul benoetigt:
 python-mutagen
 sudo apt-get install python-mutagen
 
 GUI aktualisieren mit:
 pyuic4 daisy_creator_mag_s.ui -o daisy_creator_mag_s_ui.py
-""" 
- 
+"""
+
 from PyQt4 import QtGui, QtCore
 import sys
 import os
@@ -37,19 +37,21 @@ import ConfigParser
 import daisy_creator_mag_s_ui
 
 #TODO: Check for special characters in filenames
-# Intro, Ausgabe, Metafile wenn file nicht gefunden filename anzeigen
 #TODO: Hilfe-Datei einbinden
-# Source, Dest checks from daisy_creator_mag
+#TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
 #TODO: try exept in write ncc und smil wie in daisy_creator_mag korrigieren
 #TODO: checkChangeBitrateAndCopy if korrigiern wie in daisy_creator_mag
+#TODO: variable file in actionOpenMetaFile umbenennen
+#TODO: IOError bei with open korrigieren
+
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
-    """ 
+    """
     mainClass
     The second parent must be 'Ui_<obj. name of main widget class>'.
     """
- 
+
     def __init__(self, parent=None):
         """Settings"""
         super(DaisyCopy, self).__init__(parent)
@@ -59,17 +61,17 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         # Pass this "self" for building widgets and
         # keeping a reference.
         self.app_debugMod = "yes"
-        self.app_bhzItems = ["Zeitschrift"]        
+        self.app_bhzItems = ["Zeitschrift"]
         self.app_prevAusgItems = ["10",  "11",  "12",  "22",  "23",  "24",  "25"]
         self.app_currentAusgItems = ["01", "02", "03",  "04",  "05",  "06",  "07",  "08",  "09",  "10",  "11",  "12",  "13",  "14",  "15",  "16",  "17",  "18",  "19",  "20",  "21",  "22",  "23",  "24",  "25"]
         self.app_nextAusgItems = ["01",  "02",  "03",  "04"]
-        self.app_bhzPfad = QtCore.QDir.homePath() 
-        self.app_bhzPfadZiel = QtCore.QDir.homePath() 
-        self.app_bhzPfadMeta = QtCore.QDir.homePath() 
-        self.app_bhzPfadAusgabeansage = QtCore.QDir.homePath() 
-        self.app_bhzPfadIntro = QtCore.QDir.homePath() 
+        self.app_bhzPfad = QtCore.QDir.homePath()
+        self.app_bhzPfadZiel = QtCore.QDir.homePath()
+        self.app_bhzPfadMeta = QtCore.QDir.homePath()
+        self.app_bhzPfadAusgabeansage = QtCore.QDir.homePath()
+        self.app_bhzPfadIntro = QtCore.QDir.homePath()
         self.connectActions()
-    
+
     def connectActions(self):
         """Define Actions """
         self.toolButtonCopySource.clicked.connect(self.actionOpenCopySource)
@@ -83,31 +85,31 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.pushButtonClose1.clicked.connect(self.actionQuit)
         self.pushButtonClose2.clicked.connect(self.actionQuit)
 
-    def readConfig(self ):
+    def readConfig(self):
         """read Config from file"""
         fileNotExist = None
         try:
             with open( "daisy_creator_mag_s.config" ) as f: pass
         except IOError as e:
-            self.showDebugMessage(  u"File not exists" )
-            self.textEdit.append("<b>Config-Datei konnte nicht geladen werden...</b>")   
+            self.showDebugMessage(u"File not exists")
+            self.textEdit.append("<b>Config-Datei konnte nicht geladen werden...</b>")
             fileNotExist = "yes"
-        
+
         if  fileNotExist is not None:
             return
-        
+
         config = ConfigParser.RawConfigParser()
         config.read("daisy_creator_mag_s.config")
         self.app_bhzPfad = config.get('Ordner', 'BHZ')
         self.app_bhzPfadZiel = config.get('Ordner', 'BHZ-Ziel')
         self.app_bhzPfadMeta = config.get('Ordner', 'BHZ-Meta')
         self.app_bhzPfadAusgabeansage  = config.get('Ordner', 'BHZ-Ausgabeansage')
-        self.app_bhzPfadIntro  = config.get('Ordner', 'BHZ-Intro')
-        self.app_bhzItems  = config.get('Blindenhoerzeitschriften', 'BHZ').split(",")
+        self.app_bhzPfadIntro = config.get('Ordner', 'BHZ-Intro')
+        self.app_bhzItems = config.get('Blindenhoerzeitschriften', 'BHZ').split(",")
 
     def actionOpenCopySource(self):
         """Source of copy"""
-        # QtCore.QDir.homePath() 
+        # QtCore.QDir.homePath()
         dirSource = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Quell-Ordner",
@@ -119,7 +121,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.lineEditCopySource.setText(dirSource)
             self.textEdit.append("Quelle:")
             self.textEdit.append(dirSource)
-    
+
     def actionOpenDaisySource(self):
         """Source of daisy"""
         dirSource = QtGui.QFileDialog.getExistingDirectory(
@@ -133,7 +135,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.lineEditDaisySource.setText(dirSource)
             self.textEdit.append("Quelle:")
             self.textEdit.append(dirSource)
-    
+
     def actionOpenCopyDest(self):
         """Destination of Copy"""
         dirDest = QtGui.QFileDialog.getExistingDirectory(
@@ -147,10 +149,10 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.lineEditCopyDest.setText(dirDest)
             self.textEdit.append("Ziel:")
             self.textEdit.append(dirDest)
-    
+
     def actionOpenCounterFile(self):
         """Counterdatei for Steuerung"""
-        file1 = QtGui.QFileDialog.getOpenFileName (
+        file1 = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Counter-Datei",
                         self.app_bhzPfad
@@ -164,7 +166,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
     def actionOpenCopyFile2(self):
         """Zusatzdatei 2 zum kopieren"""
-        file2 = QtGui.QFileDialog.getOpenFileName (
+        file2 = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Datei 2",
                         QtCore.QDir.homePath()
@@ -175,7 +177,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.lineEdit_4.setText(file2)
             self.textEdit.append("Zusatz-Datei 2:")
             self.textEdit.append(file2)
-    
+
     def actionOpenMetaFile(self):
         """Metadatei zum laden"""
         file = QtGui.QFileDialog.getOpenFileName (
@@ -187,173 +189,172 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         # was cancelled away.
         if file:
             self.lineEditMetaSource.setText(file)
-    
+
     def actionRunCopy(self):
         """Hauptroutine zum Kopieren"""
-        if self.lineEditCopySource.text()== "Quell-Ordner":
+        if self.lineEditCopySource.text() == "Quell-Ordner":
             errorMessage = u"Quell-Ordner wurde nicht ausgewaehlt.."
-            self.showDialogCritical( errorMessage )
+            self.showDialogCritical(errorMessage)
             return
-            
-        if self.lineEditCopyDest.text()== "Ziel-Ordner":
+
+        if self.lineEditCopyDest.text() == "Ziel-Ordner":
             errorMessage = u"Ziel-Ordner wurde nicht ausgewaehlt.."
-            self.showDialogCritical( errorMessage )
+            self.showDialogCritical(errorMessage)
             return
-        
-        if self.lineEditFileCounter.text()== "Counter-Datei waehlen":
+
+        if self.lineEditFileCounter.text() == "Counter-Datei waehlen":
             if self.comboBoxCopyBhz.currentText() == "ABC_Journal":
                 errorMessage = u"Counter-Datei wurde nicht ausgewaehlt.."
-                self.showDialogCritical( errorMessage )
+                self.showDialogCritical(errorMessage)
                 return
         else:
             counterLines = self.readCounterFile()
-        
-        self.showDebugMessage(  self.lineEditCopySource.text() )
-        self.showDebugMessage(  self.lineEditCopyDest.text() )
-        
+
+        self.showDebugMessage(self.lineEditCopySource.text())
+        self.showDebugMessage(self.lineEditCopyDest.text())
+
         # check for files in source
         try:
-            dirsSource = os.listdir( self.lineEditCopySource.text())
+            dirsSource = os.listdir(self.lineEditCopySource.text())
         except Exception, e:
             logMessage = u"read_files_from_dir Error: %s" % str(e)
-            self.showDebugMessage( logMessage)
-        
+            self.showDebugMessage(logMessage)
+
         # ceck dir of dest
-        if os.path.exists(self.lineEditCopyDest.text() ) is False:
+        if os.path.exists(self.lineEditCopyDest.text()) is False:
             errorMessage = u"Ziel-Ordner existiert nicht.."
-            self.showDebugMessage( errorMessage)
-            self.showDialogCritical( errorMessage )
+            self.showDebugMessage(errorMessage)
+            self.showDialogCritical(errorMessage)
             self.lineEditCopyDest.setFocus()
             return
-        
-        self.showDebugMessage( dirsSource )
+
+        self.showDebugMessage(dirsSource)
         # Anfangswert des Counters erhoehen wenn AusgAnsage und/oder Intro kopiert werden
-        zCounter =0
+        zCounter = 0
         if self.checkBoxCopyBhzIntro.isChecked():
-            zCounter +=1
+            zCounter += 1
         if self.checkBoxCopyBhzAusgAnsage.isChecked():
-            zCounter +=1
-        
+            zCounter += 1
+
         self.textEdit.append("<b>Kopieren:</b>")
         z = 0
         zList = len(dirsSource)
-        self.showDebugMessage(  zList )
+        self.showDebugMessage(zList)
         dirsSource.sort()
         # files durchgehen
         for item in dirsSource:
-            if (item[ len(item)-4:len(item) ] != ".MP3" 
-                            and item[ len(item)-4:len(item) ] != ".mp3"):
+            if (item[len(item)- 4:len(item)] != ".MP3"
+                            and item[len(item)- 4:len(item)] != ".mp3"):
                 continue
-                
-            fileToCopySource = self.lineEditCopySource.text() + "/" + item 
+
+            fileToCopySource = self.lineEditCopySource.text() + "/" + item
             # pruefen ob file exists
             fileNotExist = None
             try:
-                with open( fileToCopySource ) as f: pass
+                with open(fileToCopySource) as f: pass
             except IOError as e:
-                self.showDebugMessage(  u"File not exists" )
+                self.showDebugMessage(u"File not exists" )
                 fileNotExist = "yes"
                 # max Anzahl korrigieren und Progress aktualisieren
-                zList = zList -1
-                pZ = z *100 / zList 
+                zList = zList - 1
+                pZ = z * 100 / zList
                 self.progressBarCopy.setValue(pZ)
-                
-            self.showDebugMessage( fileToCopySource )
+
+            self.showDebugMessage(fileToCopySource)
             # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
             # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
             if  fileNotExist is None:
                 # Dateiname in counterDatei suchen, Counter extrahieren und in Dateiname
-                zCounterFiles =0
+                zCounterFiles = 0
                 for line in counterLines:
                     if line.find(item) != -1:
-                        # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen, 
-                        # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind 
+                        # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen,
+                        # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind
                         # wird der rest, der uebereinstimmt gefunden
-                        zCounterFiles +=1
+                        zCounterFiles += 1
                         #self.textEdit.append(u"counterline"+ line)
-                        self.showDebugMessage(  u"counterline"+ line)
+                        self.showDebugMessage( u"counterline"+ line)
                         #self.showDebugMessage(  u"counter"+ line[9:11])
-                        self.showDebugMessage(  u"counter"+ line[0:02])
+                        self.showDebugMessage(u"counter"+ line[0:02])
                         # Counter vorne dran
-                        zFileCount = zCounter + int(line[0:02] )
+                        zFileCount = zCounter + int(line[0:02])
                         #fileToCopyDest = self.lineEditCopyDest.text() + "/" + line[9:11] + "_" + item
                         fileToCopyDest = self.lineEditCopyDest.text() + "/" + str(zFileCount).zfill(2) + "_" + item
-                    
+
                 # dateiname nicht gefunden
                 if zCounterFiles == 0:
                     self.textEdit.append("<b><font color='red'>Dateiname in Counterdatei nicht gefunden</font></b>:")
-                    self.textEdit.append( ntpath.basename(str(fileToCopySource)))
+                    self.textEdit.append(ntpath.basename(str(fileToCopySource)))
                     self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
                     return
-                    
-                self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
-                self.showDebugMessage( fileToCopySource )
-                self.showDebugMessage( fileToCopyDest )
-                    
-                # Bitrate checken, eventuell aendern und gleich in Ziel neu encodieren
-                isChangedAndCopy = self.checkChangeBitrateAndCopy( fileToCopySource,  fileToCopyDest )
-                # nicht geaendert also kopieren
-                if  isChangedAndCopy is None: 
-                    self.copyFile( fileToCopySource, fileToCopyDest)
 
-                self.checkCangeId3( fileToCopyDest)
-                z +=1
-                self.showDebugMessage( z )
-                self.showDebugMessage( zList )
-                pZ = z *100 / zList 
-                self.showDebugMessage( pZ )
+                self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
+                self.showDebugMessage(fileToCopySource)
+                self.showDebugMessage(fileToCopyDest)
+
+                # Bitrate checken, eventuell aendern und gleich in Ziel neu encodieren
+                isChangedAndCopy = self.checkChangeBitrateAndCopy(fileToCopySource, fileToCopyDest)
+                # nicht geaendert also kopieren
+                if  isChangedAndCopy is None:
+                    self.copyFile(fileToCopySource, fileToCopyDest)
+
+                self.checkCangeId3(fileToCopyDest)
+                z += 1
+                self.showDebugMessage(z)
+                self.showDebugMessage(zList)
+                pZ = z * 100 / zList
+                self.showDebugMessage(pZ)
                 self.progressBarCopy.setValue(pZ)
             else:
                 self.textEdit.append("<b>Uebersprungen</b>:")
                 self.textEdit.append(fileToCopySource)
-        
-        self.showDebugMessage( z )
-        
+
+        self.showDebugMessage(z)
+
         if self.checkBoxCopyBhzIntro.isChecked():
             self.copyIntro()
-        
+
         if self.checkBoxCopyBhzAusgAnsage.isChecked():
             self.copyAusgabeAnsage()
-        
+
         # Metadaten laden
-        self.lineEditMetaSource.setText(self.app_bhzPfadMeta + "/Daisy_Meta_" + self.comboBoxCopyBhz.currentText()  )
+        self.lineEditMetaSource.setText(self.app_bhzPfadMeta + "/Daisy_Meta_" + self.comboBoxCopyBhz.currentText())
         self.metaLoadFile()
         # Zielpfad als Quellpfad fuer Daisy eintragen
         self.lineEditDaisySource.setText(self.lineEditCopyDest.text())
 
-   
     def copyFile(self, fileToCopySource, fileToCopyDest):
-       """Datei kopieren"""
-       try:
-            shutil.copy( fileToCopySource, fileToCopyDest )
-       except Exception, e:
+        """Datei kopieren"""
+        try:
+            shutil.copy(fileToCopySource, fileToCopyDest )
+        except Exception, e:
             logMessage = u"copy_file Error: %s" % str(e)
             self.showDebugMessage(logMessage)
             self.textEdit.append(logMessage + fileToCopyDest)
-    
+
     def copyIntro(self):
         """Intro kopieren"""
-        fileToCopySource = self.app_bhzPfadIntro + "/Intro_" +  self.comboBoxCopyBhz.currentText()  + ".mp3"
-        fileToCopyDest = self.lineEditCopyDest.text() + "/02_" +  self.comboBoxCopyBhz.currentText() + "_-_" + self.comboBoxCopyBhzAusg.currentText() + "_Intro.mp3"
+        fileToCopySource = self.app_bhzPfadIntro + "/Intro_" + self.comboBoxCopyBhz.currentText() + ".mp3"
+        fileToCopyDest = self.lineEditCopyDest.text() + "/02_" + self.comboBoxCopyBhz.currentText() + "_-_" + self.comboBoxCopyBhzAusg.currentText() + "_Intro.mp3"
         self.showDebugMessage(fileToCopySource)
         self.showDebugMessage(fileToCopyDest)
         fileNotExist = None
         try:
-            with open( fileToCopySource ) as f: pass
+            with open(fileToCopySource) as f: pass
         except IOError as e:
-            self.showDebugMessage(  u"File not exists" )
+            self.showDebugMessage(u"File not exists")
             self.textEdit.append("<b><font color='red'>Intro konnte nicht kopiert werden</font></b>:")
             self.textEdit.append(fileToCopySource)
             fileNotExist = "yes"
-        
+
         if  fileNotExist is None:
             #shutil.copy( fileToCopySource, fileToCopyDest )
-            self.copyFile( fileToCopySource, fileToCopyDest)
-            self.checkCangeId3( fileToCopyDest)
-    
+            self.copyFile(fileToCopySource, fileToCopyDest)
+            self.checkCangeId3(fileToCopyDest)
+
     def copyAusgabeAnsage(self):
         """Intro kopieren"""
-        pfadAusgabe = self.app_bhzPfadAusgabeansage + "_" + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_" + self.comboBoxCopyBhz.currentText() 
+        pfadAusgabe = self.app_bhzPfadAusgabeansage + "_" + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_" + self.comboBoxCopyBhz.currentText()
         self.showDebugMessage(pfadAusgabe)
         fileToCopySource = pfadAusgabe + "/" +  self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_" + self.comboBoxCopyBhzAusg.currentText() + ".mp3"
         fileToCopyDest = self.lineEditCopyDest.text() + "/01_" +  self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_" + self.comboBoxCopyBhzAusg.currentText() + ".mp3"
@@ -363,22 +364,22 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         try:
             with open( fileToCopySource ) as f: pass
         except IOError as e:
-            self.showDebugMessage(  u"File not exists" )
+            self.showDebugMessage(u"File not exists")
             self.textEdit.append("<b><font color='red'>Ausgabeansage konnte nicht kopiert werden</font></b>:")
             self.textEdit.append(fileToCopySource)
-            
+
             fileNotExist = "yes"
-        
+
         if  fileNotExist is None:
             #shutil.copy( fileToCopySource, fileToCopyDest )
-            self.copyFile( fileToCopySource, fileToCopyDest)
-            self.checkCangeId3( fileToCopyDest)
-    
+            self.copyFile(fileToCopySource, fileToCopyDest)
+            self.checkCangeId3(fileToCopyDest)
+
     def readCounterFile(self):
         """Datei mit Dateinamen und Counter einlesen """
         try:
-            f = open( str(self.lineEditFileCounter.text()), 'r')
-            lines = f.readlines() 
+            f = open(str(self.lineEditFileCounter.text()), 'r')
+            lines = f.readlines()
             f.close()
             self.textEdit.append("<b>Counter-Datei gelesen: </b>" + self.lineEditFileCounter.text())
             #for item in lines:
@@ -387,7 +388,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             lines = None
             self.showDebugMessage("read_from_file_lines_in_list: nicht lesbar: " + filename)
         return lines
-    
+
     def checkCangeId3(self, fileToCopyDest):
         """id3 Tags pruefen, ev. entfernen"""
         tag = None
@@ -395,63 +396,65 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             audio = ID3(fileToCopyDest)
             tag = "yes"
         except ID3NoHeaderError:
-            self.showDebugMessage( u"No ID3 header found; skipping.")
-        
+            self.showDebugMessage(u"No ID3 header found; skipping.")
+
         if tag is not None:
             if self.checkBoxCopyID3Change.isChecked():
                 audio.delete()
-                self.textEdit.append("<b>ID3 entfernt bei</b>: " + ntpath.basename( str(fileToCopyDest)))
-                self.showDebugMessage( u"ID3 entfernt bei " + fileToCopyDest)
+                self.textEdit.append("<b>ID3 entfernt bei</b>: " + ntpath.basename(str(fileToCopyDest)))
+                self.showDebugMessage(u"ID3 entfernt bei " + fileToCopyDest)
             else:
                 self.textEdit.append("<b>ID3 vorhanden, aber NICHT entfernt bei</b>: " + fileToCopyDest)
-    
-    def checkChangeBitrateAndCopy(self,  fileToCopySource, fileToCopyDest):
+
+    def checkChangeBitrateAndCopy(self, fileToCopySource, fileToCopyDest):
         """Bitrate aendern und an Ziel encodieren"""
         isChangedAndCopy = None
-        audioSource = MP3( fileToCopySource )
-        if audioSource.info.bitrate != int(self.comboBoxPrefBitrate.currentText())*1000:
+        audioSource = MP3(fileToCopySource)
+        if audioSource.info.bitrate != int(self.comboBoxPrefBitrate.currentText())* 1000:
             isEncoded = None
-            self.textEdit.append( u"Bitrate Vorgabe: " + str(self.comboBoxPrefBitrate.currentText()) )
-            self.textEdit.append( u"<b>Bitrate folgender Datei entspricht nicht der Vorgabe:</b> " + str(audioSource.info.bitrate/1000) + " " + fileToCopySource)
-            
+            self.textEdit.append(u"Bitrate Vorgabe: " + str(self.comboBoxPrefBitrate.currentText()))
+            self.textEdit.append(u"<b>Bitrate folgender Datei entspricht nicht der Vorgabe:</b> " + str(audioSource.info.bitrate/1000) + " " + fileToCopySource)
+
             if self.checkBoxCopyBitrateChange.isChecked():
                 self.textEdit.append(u"<b>Bitrate aendern bei</b>: " + fileToCopyDest)
-                isEncoded = self.encodeFile( fileToCopySource, fileToCopyDest )
+                isEncoded = self.encodeFile(fileToCopySource, fileToCopyDest)
                 if isEncoded is not None:
                     self.textEdit.append(u"<b>Bitrate geaendert bei</b>: " + fileToCopyDest)
                     isChangedAndCopy = True
             else:
                 self.textEdit.append(u"<b>Bitrate wurde NICHT geaendern bei</b>: " + fileToCopyDest)
         return isChangedAndCopy
-    
-    def encodeFile(self, fileToCopySource, fileToCopyDest ):
-        """mp3-files mit entspr Bitrate encoden"""
-        self.showDebugMessage( u"encode_file" )
-        #damit die uebergabe der befehle richtig klappt muessen alle cmds im richtigen zeichensatz als strings encoded sein
-        c_lame_encoder = "/usr/bin/lame"
-        self.showDebugMessage(  u"type c_lame_encoder" )
-        self.showDebugMessage( type(c_lame_encoder) )
-        self.showDebugMessage( u"fileToCopySource" )
-        self.showDebugMessage( type(fileToCopySource) )
-        self.showDebugMessage( fileToCopyDest )
-        self.showDebugMessage( u"type(fileToCopyDest)" )
-        self.showDebugMessage( type( fileToCopyDest ) )
-        
-        #p = subprocess.Popen([c_lame_encoder, "-b",  "64", "-m",  "m",  fileToCopySource, fileToCopyDest ],  stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(  )
-        p = subprocess.Popen([c_lame_encoder, "-b",  self.comboBoxPrefBitrate.currentText(), "-m",  "m",  fileToCopySource, fileToCopyDest ],  stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(  )
 
-        self.showDebugMessage( u"returncode 0" )
-        self.showDebugMessage( p[0] )
-        self.showDebugMessage( u"returncode 1" )
-        self.showDebugMessage( p[1] )
-    
+    def encodeFile(self, fileToCopySource, fileToCopyDest):
+        """mp3-files mit entspr Bitrate encoden"""
+        self.showDebugMessage(u"encode_file")
+        #damit die uebergabe der befehle richtig klappt,
+        # muessen alle cmds im richtigen zeichensatz als strings encoded sein
+        c_lame_encoder = "/usr/bin/lame"
+        self.showDebugMessage(u"type c_lame_encoder")
+        self.showDebugMessage(type(c_lame_encoder))
+        self.showDebugMessage(u"fileToCopySource")
+        self.showDebugMessage(type(fileToCopySource))
+        self.showDebugMessage(fileToCopyDest)
+        self.showDebugMessage(u"type(fileToCopyDest)")
+        self.showDebugMessage(type(fileToCopyDest))
+
+        #p = subprocess.Popen([c_lame_encoder, "-b",  "64", "-m",  "m",  fileToCopySource, fileToCopyDest ],  stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(  )
+        p = subprocess.Popen([c_lame_encoder, "-b", self.comboBoxPrefBitrate.currentText(), "-m",  "m",  fileToCopySource, fileToCopyDest ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+        self.showDebugMessage(u"returncode 0")
+        self.showDebugMessage(p[0])
+        self.showDebugMessage(u"returncode 1")
+        self.showDebugMessage(p[1])
+
         # erfolgsmeldung suchen, wenn nicht gefunden: -1
-        n_encode_percent = string.find( p[1],  "(100%)" )
-        n_encode_percent_1 = string.find( p[1],  "(99%)" )
+        n_encode_percent = string.find( p[1], "(100%)")
+        n_encode_percent_1 = string.find( p[1], "(99%)")
         self.showDebugMessage( n_encode_percent )
         c_complete = "no"
-    
-        # bei kurzen files kommt die 100% meldung nicht, deshalb auch 99% durchgehen lassen
+
+        # bei kurzen files kommt die 100% meldung nicht,
+        # deshalb auch 99% durchgehen lassen
         if n_encode_percent == -1:
             # 100% nicht erreicht
             if n_encode_percent_1 != -1:
@@ -459,31 +462,31 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 c_complete = "yes"
         else:
             c_complete = "yes"
-    
-        if c_complete == "yes" :
+
+        if c_complete == "yes":
             log_message = u"recoded_file: " + fileToCopySource
-            self.showDebugMessage( log_message )
+            self.showDebugMessage(log_message)
             return fileToCopyDest
         else:
             log_message = u"recode_file Error: " + fileToCopySource
-            self.showDebugMessage( log_message )
+            self.showDebugMessage(log_message)
             return None
-    
-    def metaLoadFile(self ):
+
+    def metaLoadFile(self):
         fileNotExist = None
         try:
             with open( str(self.lineEditMetaSource.text()) ) as f: pass
         except IOError as e:
-            self.showDebugMessage(  u"File not exists" )
+            self.showDebugMessage( u"File not exists")
             self.textEdit.append(
                 "<font color='red'>"
-                +"Meta-Datei konnte nicht geladen werden</font>: " 
-                + os.path.basename(str(self.lineEditMetaSource.text())))   
+                + "Meta-Datei konnte nicht geladen werden</font>: "
+                + os.path.basename(str(self.lineEditMetaSource.text())))
             fileNotExist = "yes"
-        
+
         if  fileNotExist is not None:
             return
-            
+
         config = ConfigParser.RawConfigParser()
         # Pfad von QTString in String  umwandeln
         config.read(str(self.lineEditMetaSource.text()))
@@ -496,34 +499,34 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.lineEditMetaRefOrig.setText(config.get('Daisy_Meta', 'ISBN/Ref-Nr.Original'))
         self.lineEditMetaPublisher.setText(config.get('Daisy_Meta', 'Verlag'))
         self.lineEditMetaYear.setText(config.get('Daisy_Meta', 'Jahr'))
-    
+
     def actionRunDaisy(self):
         """Daisy-Fileset erzeugen"""
-        if self.lineEditDaisySource.text()== "Quell-Ordner":
+        if self.lineEditDaisySource.text() == "Quell-Ordner":
             errorMessage = u"Quell-Ordner wurde nicht ausgewaehlt.."
-            self.showDialogCritical( errorMessage )
+            self.showDialogCritical(errorMessage)
             return
-        
+
         # Audios einlesen
         try:
-            dirItems = os.listdir( self.lineEditDaisySource.text())
+            dirItems = os.listdir(self.lineEditDaisySource.text())
         except Exception, e:
             logMessage = u"read_files_from_dir Error: %s" % str(e)
-            self.showDebugMessage( logMessage)
-        
+            self.showDebugMessage(logMessage)
+
         self.progressBarDaisy.setValue(10)
-        self.showDebugMessage( dirItems )
+        self.showDebugMessage(dirItems)
         self.textEditDaisy.append(u"<b>Folgende Audios werden bearbeitet:</b>")
         zMp3 = 0
         zList = len(dirItems)
-        self.showDebugMessage(  zList )
+        self.showDebugMessage(zList)
         dirAudios = []
         dirItems.sort()
         for item in dirItems:
-            if item[ len(item)-4:len(item) ] == ".MP3" or item[ len(item)-4:len(item) ] == ".mp3":
-                dirAudios.append(item) 
+            if item[len(item)- 4:len(item)] == ".MP3" or item[len(item)- 4:len(item) ] == ".mp3":
+                dirAudios.append(item)
                 self.textEditDaisy.append(item)
-                zMp3 +=1
+                zMp3 += 1
 
         #totalAudioLength = self.calcAudioLengt(dirAudios)
         lTimes = self.calcAudioLengt(dirAudios)
@@ -531,30 +534,31 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         lTotalElapsedTime = lTimes[1]
         lFileTime = lTimes[2]
         print totalAudioLength
-        totalTime = timedelta(seconds = totalAudioLength)
-        # umwandlung von timedelta in string: minuten und sekunden musten immer zweistllig sein, 
+        totalTime = timedelta(seconds=totalAudioLength)
+        # umwandlung von timedelta in string:
+        # minuten und sekunden musten immer zweistllig sein,
         # damit einstellige stunde eine null bekommt :zfill(8)
         lTotalTime = str(totalTime).split(".")
         cTotalTime = lTotalTime[0].zfill(8)
-        #str(cTotalTime[0]).zfill(8) 
+        #str(cTotalTime[0]).zfill(8)
         self.textEditDaisy.append(u"Gesamtlaenge: " + cTotalTime)
-        self.writeNCC( cTotalTime,  zMp3,  dirAudios)
+        self.writeNCC(cTotalTime, zMp3, dirAudios)
         self.progressBarDaisy.setValue(20)
-        self.writeMasterSmil( cTotalTime,  dirAudios)
+        self.writeMasterSmil(cTotalTime, dirAudios)
         self.progressBarDaisy.setValue(50)
-        self.writeSmil( lTotalElapsedTime,  lFileTime, dirAudios)
+        self.writeSmil(lTotalElapsedTime, lFileTime, dirAudios)
         self.progressBarDaisy.setValue(100)
-    
-    def calcAudioLengt(self,  dirAudios):
+
+    def calcAudioLengt(self, dirAudios):
         """Gesamtlange der Audios ermitteln"""
-        totalAudioLength =0
+        totalAudioLength = 0
         lTotalElapsedTime = []
         lTotalElapsedTime.append(0)
         lFileTime = []
         for item in dirAudios:
-            fileToCheck = os.path.join( str(self.lineEditDaisySource.text()), item) 
-            audioSource = MP3( fileToCheck )
-            self.showDebugMessage(item + " "+ str(audioSource.info.length))
+            fileToCheck = os.path.join(str(self.lineEditDaisySource.text()), item)
+            audioSource = MP3(fileToCheck)
+            self.showDebugMessage(item + " " + str(audioSource.info.length))
             totalAudioLength += audioSource.info.length
             lTotalElapsedTime.append(totalAudioLength)
             lFileTime.append(audioSource.info.length)
@@ -563,119 +567,119 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             lTimes.append(lTotalElapsedTime)
             lTimes.append(lFileTime)
         return lTimes
-    
-    def writeNCC(self, cTotalTime,  zMp3,  dirAudios):
+
+    def writeNCC(self, cTotalTime, zMp3, dirAudios):
         """NCC-Page schreiben"""
         try:
-            fOutFile = open( os.path.join( str(self.lineEditDaisySource.text()), "ncc.html")  , 'w')
+            fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), "ncc.html"), 'w')
         except IOError as (errno, strerror):
-            self.showDebugMessage( "I/O error({0}): {1}".format(errno, strerror) )
+            self.showDebugMessage("I/O error({0}): {1}".format(errno, strerror))
         else:
             self.textEditDaisy.append(u"<b>NCC-Datei schreiben</b>")
-            fOutFile.write( '<?xml version="1.0" encoding="utf-8"?>'+ '\r\n' )
-            fOutFile.write( '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'+ '\r\n')
-            fOutFile.write( '<html xmlns="http://www.w3.org/1999/xhtml">'+ '\r\n')
-            fOutFile.write( '<head>'+ '\r\n')
-            fOutFile.write( '<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>'+ '\r\n')
-            fOutFile.write( '<title>' + self.comboBoxCopyBhz.currentText() + '</title>'+ '\r\n')
+            fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
+            fOutFile.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + '\r\n')
+            fOutFile.write('<html xmlns="http://www.w3.org/1999/xhtml">' + '\r\n')
+            fOutFile.write('<head>'+ '\r\n')
+            fOutFile.write('<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>' + '\r\n')
+            fOutFile.write('<title>' + self.comboBoxCopyBhz.currentText() + '</title>' + '\r\n')
 
-            fOutFile.write( '<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:revision" content="1"/>'+ '\r\n')
+            fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:revision" content="1"/>' + '\r\n')
             today = datetime.date.today()
-            fOutFile.write( '<meta name="ncc:producedDate" content="' + today.strftime("%Y-%m-%d") + '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:revisionDate" content="' + today.strftime("%Y-%m-%d") + '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:tocItems" content="' + str( zMp3 ) + '"/>'+ '\r\n')
-            
-            fOutFile.write( '<meta name="ncc:totalTime" content="' + cTotalTime+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:narrator" content="' + self.lineEditMetaNarrator.text() + '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:pageNormal" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:pageFront" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:pageSpecial" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:sidebars" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:prodNotes" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:footnotes" content="0"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:depth" content="' + str(self.spinBoxLevel.value())+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:maxPageNormal" content="' +str(self.spinBoxPages.value()) +'"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:charset" content="utf-8"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:multimediaType" content="audioNcc"/>'+ '\r\n')
+            fOutFile.write('<meta name="ncc:producedDate" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:revisionDate" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:tocItems" content="' + str(zMp3) + '"/>' + '\r\n')
+
+            fOutFile.write('<meta name="ncc:totalTime" content="' + cTotalTime+ '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:narrator" content="' + self.lineEditMetaNarrator.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:pageNormal" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:pageFront" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:pageSpecial" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:sidebars" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:prodNotes" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:footnotes" content="0"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:depth" content="' + str(self.spinBoxLevel.value()) + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:maxPageNormal" content="' +str(self.spinBoxPages.value()) +'"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:charset" content="utf-8"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:multimediaType" content="audioNcc"/>' + '\r\n')
             #fOutFile.write( '<meta name="ncc:kByteSize" content=" "/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:setInfo" content="1 of 1"/>'+ '\r\n')
-            
-            fOutFile.write( '<meta name="ncc:sourceDate" content="' + self.lineEditMetaYear.text()+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:sourceEdition" content="' + self.lineEditMetaEdition.text() + '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="ncc:sourcePublisher" content="' + self.lineEditMetaPublisher.text()+ '"/>'+ '\r\n')
+            fOutFile.write('<meta name="ncc:setInfo" content="1 of 1"/>' + '\r\n')
+
+            fOutFile.write('<meta name="ncc:sourceDate" content="' + self.lineEditMetaYear.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:sourceEdition" content="' + self.lineEditMetaEdition.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:sourcePublisher" content="' + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
 
             #Anzahl files = Records 2x + ncc.html + master.smil
-            fOutFile.write( '<meta name="ncc:files" content="' + str(zMp3 + zMp3 + 2) + '"/>'+ '\r\n')        
+            fOutFile.write( '<meta name="ncc:files" content="' + str(zMp3 + zMp3 + 2) + '"/>' + '\r\n')
             fOutFile.write( '<meta name="ncc:producer" content="' + self.lineEditMetaProducer.text()+ '"/>'+ '\r\n')
 
-            fOutFile.write( '<meta name="dc:creator" content="' + self.lineEditMetaAutor.text()+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:date" content="' + today.strftime("%Y-%m-%d")+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:format" content="Daisy 2.02"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text()+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:language" content="de" scheme="ISO 639"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:publisher" content="' + self.lineEditMetaPublisher.text()+ '"/>'+ '\r\n')
+            fOutFile.write('<meta name="dc:creator" content="' + self.lineEditMetaAutor.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:date" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>'+ '\r\n')
+            fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:language" content="de" scheme="ISO 639"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:publisher" content="' + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
 
-            fOutFile.write( '<meta name="dc:source" content="' +self.lineEditMetaRefOrig.text()+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:subject" content="' + self.lineEditMetaKeywords.text()+ '"/>'+ '\r\n')
-            fOutFile.write( '<meta name="dc:title" content="' +self.lineEditMetaTitle.text()+ '"/>'+ '\r\n')
+            fOutFile.write('<meta name="dc:source" content="' +self.lineEditMetaRefOrig.text()+ '"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:subject" content="' + self.lineEditMetaKeywords.text() + '"/>'+ '\r\n')
+            fOutFile.write('<meta name="dc:title" content="' +self.lineEditMetaTitle.text() + '"/>' + '\r\n')
             # Medibus-OK items
-            fOutFile.write( '<meta name="prod:audioformat" content="wave 44 kHz"/>'+ '\r\n')
-            fOutFile.write( '<meta name="prod:compression" content="mp3 ' + self.comboBoxPrefBitrate.currentText()  + '/ kb/s"/>'+ '\r\n')      
-            fOutFile.write( '<meta name="prod:localID" content=" "/>'+ '\r\n')      
-            fOutFile.write( '</head>'+ '\r\n')
-            fOutFile.write( '<body>'+ '\r\n')
+            fOutFile.write('<meta name="prod:audioformat" content="wave 44 kHz"/>' + '\r\n')
+            fOutFile.write('<meta name="prod:compression" content="mp3 ' + self.comboBoxPrefBitrate.currentText() + '/ kb/s"/>'+ '\r\n')
+            fOutFile.write('<meta name="prod:localID" content=" "/>' + '\r\n')
+            fOutFile.write('</head>' + '\r\n')
+            fOutFile.write('<body>' + '\r\n')
             z = 0
             for item in dirAudios:
-                z +=1
+                z += 1
                 if z == 1:
-                    fOutFile.write('<h1 class="title" id="cnt_0001"><a href="0001.smil#txt_0001">' + self.lineEditMetaAutor.text()+ ": " + self.lineEditMetaTitle.text() + '</a></h1>'+ '\r\n')
+                    fOutFile.write('<h1 class="title" id="cnt_0001"><a href="0001.smil#txt_0001">' + self.lineEditMetaAutor.text()+ ": " + self.lineEditMetaTitle.text() + '</a></h1>' + '\r\n')
                     continue
                 # trennen
-                itemSplit = self.splitFilename( item)
-                cAuthor = self.extractAuthor( itemSplit)  
-                cTitle = self.extractTitle( itemSplit)                  
-                fOutFile.write('<h'+ str(self.spinBoxLevel.value())+' id="cnt_'+str(z).zfill(4)+'"><a href="'+str(z).zfill(4)+'.smil#txt_'+str(z).zfill(4)+'">'+ cAuthor +" - " + cTitle + '</a></h1>'+ '\r\n')
-                           
-            fOutFile.write( "</body>"+ '\r\n')
-            fOutFile.write( "</html>"+ '\r\n')
+                itemSplit = self.splitFilename(item)
+                cAuthor = self.extractAuthor(itemSplit)
+                cTitle = self.extractTitle(itemSplit)
+                fOutFile.write('<h' + str(self.spinBoxLevel.value()) + ' id="cnt_' + str(z).zfill(4) + '"><a href="' + str(z).zfill(4) + '.smil#txt_' + str(z).zfill(4) + '">' + cAuthor +" - " + cTitle + '</a></h1>' + '\r\n')
+
+            fOutFile.write("</body>" + '\r\n')
+            fOutFile.write("</html>" + '\r\n')
             fOutFile.close
 
-    def writeMasterSmil(self, cTotalTime,  dirAudios):
+    def writeMasterSmil(self, cTotalTime, dirAudios):
         """MasterSmil-Page schreiben"""
         try:
-            fOutFile = open( os.path.join( str(self.lineEditDaisySource.text()), "master.smil")  , 'w')
+            fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), "master.smil") , 'w')
         except IOError as (errno, strerror):
-            self.showDebugMessage( "I/O error({0}): {1}".format(errno, strerror) )
+            self.showDebugMessage("I/O error({0}): {1}".format(errno, strerror))
         else:
             self.textEditDaisy.append(u"<b>MasterSmil-Datei schreiben</b>")
-            fOutFile.write( '<?xml version="1.0" encoding="utf-8"?>'+ '\r\n' )
-            fOutFile.write( '<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
-            fOutFile.write( '<smil>'+'\r\n')
-            fOutFile.write( '<head>'+'\r\n')
-            fOutFile.write( '<meta name="dc:format" content="Daisy 2.02"/>'+'\r\n')
-            fOutFile.write( '<meta name="dc:identifier" content="'+ self.lineEditMetaRefOrig.text()+ '"/>'+'\r\n')
-            fOutFile.write( '<meta name="dc:title" content="' + self.lineEditMetaTitle.text() + '"/>'+'\r\n')
-            fOutFile.write( '<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>'+'\r\n')
-            fOutFile.write( '<meta name="ncc:format" content="Daisy 2.0"/>'+'\r\n')
-            fOutFile.write( '<meta name="ncc:timeInThisSmil" content="' + cTotalTime +  '" />'+'\r\n')
+            fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
+            fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
+            fOutFile.write('<smil>'+'\r\n')
+            fOutFile.write('<head>' + '\r\n')
+            fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>' + '\r\n')
+            fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>'+'\r\n')
+            fOutFile.write('<meta name="dc:title" content="' + self.lineEditMetaTitle.text() + '"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
+            fOutFile.write('<meta name="ncc:format" content="Daisy 2.0"/>'+'\r\n')
+            fOutFile.write('<meta name="ncc:timeInThisSmil" content="' + cTotalTime + '" />' + '\r\n')
 
-            fOutFile.write( '<layout>'+'\r\n')
-            fOutFile.write( '<region id="txt-view" />'+'\r\n')
-            fOutFile.write( '</layout>'+'\r\n')
-            fOutFile.write( '</head>'+'\r\n')
-            fOutFile.write( '<body>'+'\r\n')
-   
-            #fOutFile.write( '<ref src="0001.smil" title="'+ self.lineEditMetaTitle.text() + '" id="smil_0001"/>'+'\r\n')            
+            fOutFile.write('<layout>' + '\r\n')
+            fOutFile.write('<region id="txt-view" />' + '\r\n')
+            fOutFile.write('</layout>' + '\r\n')
+            fOutFile.write('</head>' + '\r\n')
+            fOutFile.write('<body>' + '\r\n')
+
+            #fOutFile.write( '<ref src="0001.smil" title="'+ self.lineEditMetaTitle.text() + '" id="smil_0001"/>'+'\r\n')
             z = 0
             for item in dirAudios:
-                z +=1
+                z += 1
                 # trennen
-                itemSplit = self.splitFilename( item)
-                cAuthor = self.extractAuthor( itemSplit)  
-                cTitle = self.extractTitle( itemSplit)  
-                fOutFile.write('<ref src="'+str(z).zfill(4)+'.smil" title="' +cAuthor + " - " +cTitle + '" id="smil_' + str(z).zfill(4) + '"/>'+'\r\n')
-            
+                itemSplit = self.splitFilename(item)
+                cAuthor = self.extractAuthor(itemSplit)
+                cTitle = self.extractTitle(itemSplit)
+                fOutFile.write('<ref src="'+ str(z).zfill(4) +'.smil" title="' + cAuthor + " - " + cTitle + '" id="smil_' + str(z).zfill(4) + '"/>'+'\r\n')
+
             fOutFile.write( '</body>'+'\r\n')
             fOutFile.write( '</smil>'+'\r\n')
             fOutFile.close
@@ -685,25 +689,25 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         z = 0
         for item in dirAudios:
             z +=1
-            
+
             try:
-                filename = str(z).zfill(4) +'.smil'
-                fOutFile = open( os.path.join( str(self.lineEditDaisySource.text()), filename  ) , 'w')
+                filename = str(z).zfill(4) + '.smil'
+                fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), filename), 'w')
             except IOError as (errno, strerror):
-                self.showDebugMessage( "I/O error({0}): {1}".format(errno, strerror) )
+                self.showDebugMessage( "I/O error({0}): {1}".format(errno, strerror))
             else:
-                self.textEditDaisy.append( str(z).zfill(4) +u".smil - File schreiben")
+                self.textEditDaisy.append(str(z).zfill(4) + u".smil - File schreiben")
                 # trennen
-                itemSplit = self.splitFilename( item)
-                cAuthor = self.extractAuthor( itemSplit)  
-                cTitle = self.extractTitle( itemSplit)  
-                
-                fOutFile.write( '<?xml version="1.0" encoding="utf-8"?>'+ '\r\n' )
-                fOutFile.write( '<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
-                fOutFile.write( '<smil>'+'\r\n')
-                fOutFile.write( '<head>'+'\r\n')
-                fOutFile.write( '<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>'+'\r\n')
-                totalElapsedTime = timedelta(seconds = lTotalElapsedTime[z-1])
+                itemSplit = self.splitFilename(item)
+                #cAuthor = self.extractAuthor(itemSplit)
+                cTitle = self.extractTitle(itemSplit)
+
+                fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
+                fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
+                fOutFile.write('<smil>' + '\r\n')
+                fOutFile.write('<head>' + '\r\n')
+                fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
+                totalElapsedTime = timedelta(seconds=lTotalElapsedTime[z - 1])
                 splittedTtotalElapsedTime = str(totalElapsedTime).split(".")
                 print splittedTtotalElapsedTime
                 totalElapsedTimehhmmss = splittedTtotalElapsedTime[0].zfill(8)
@@ -711,93 +715,93 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     # erster eintrag ergibt nur einen split
                     totalElapsedTimeMilliMicro = "000"
                 else:
-                    totalElapsedTimeMilliMicro = splittedTtotalElapsedTime[1][0:3] 
+                    totalElapsedTimeMilliMicro = splittedTtotalElapsedTime[1][0:3]
 
                 fOutFile.write( '<meta name="ncc:totalElapsedTime" content="' +totalElapsedTimehhmmss + "." + totalElapsedTimeMilliMicro +'"/>'+'\r\n')
-                
+
                 fileTime = timedelta(seconds = lFileTime[z-1])
                 splittedFileTime = str(fileTime).split(".")
                 FileTimehhmmss = splittedFileTime[0].zfill(8)
                 # wenn keine Millisicrosec gibts nur ein Element in der Liste
                 if len(splittedFileTime) >1:
                     if len(splittedFileTime[1]) >= 3:
-                        fileTimeMilliMicro = splittedFileTime[1][0:3] 
+                        fileTimeMilliMicro = splittedFileTime[1][0:3]
                     elif len(splittedFileTime[1]) == 2:
-                        fileTimeMilliMicro = splittedFileTime[1][0:2] 
+                        fileTimeMilliMicro = splittedFileTime[1][0:2]
                 else:
                     fileTimeMilliMicro = "000"
-                
-                fOutFile.write( '<meta name="ncc:timeInThisSmil" content="' + FileTimehhmmss + "." + fileTimeMilliMicro +'" />'+'\r\n')
-                fOutFile.write( '<meta name="dc:format" content="Daisy 2.02"/>'+'\r\n')
-                fOutFile.write( '<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>'+'\r\n')
-                fOutFile.write( '<meta name="dc:title" content="' +  cTitle  + '"/>'+'\r\n')
-                fOutFile.write( '<layout>'+'\r\n')
-                fOutFile.write( '<region id="txt-view"/>'+'\r\n')
-                fOutFile.write( '</layout>'+'\r\n')
-                fOutFile.write( '</head>'+'\r\n')
-                fOutFile.write( '<body>'+'\r\n')
+
+                fOutFile.write('<meta name="ncc:timeInThisSmil" content="' + FileTimehhmmss + "." + fileTimeMilliMicro +'" />' + '\r\n')
+                fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>'+'\r\n')
+                fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+                fOutFile.write('<meta name="dc:title" content="' +  cTitle  + '"/>' + '\r\n')
+                fOutFile.write('<layout>' + '\r\n')
+                fOutFile.write('<region id="txt-view"/>' + '\r\n')
+                fOutFile.write('</layout>' + '\r\n')
+                fOutFile.write('</head>' + '\r\n')
+                fOutFile.write('<body>' + '\r\n')
                 lFileTimeSeconds = str(lFileTime[z-1]).split(".")
-                fOutFile.write( '<seq dur="' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro  +'s">'+'\r\n')
-                fOutFile.write( '<par endsync="last">'+'\r\n')
-                fOutFile.write( '<text src="ncc.html#cnt_' + str(z).zfill(4) + '" id="txt_' + str(z).zfill(4) + '" />'+'\r\n')
-                fOutFile.write( '<seq>'+'\r\n')
+                fOutFile.write('<seq dur="' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's">' + '\r\n')
+                fOutFile.write('<par endsync="last">'+'\r\n')
+                fOutFile.write('<text src="ncc.html#cnt_' + str(z).zfill(4) + '" id="txt_' + str(z).zfill(4) + '" />'+'\r\n')
+                fOutFile.write('<seq>' + '\r\n')
                 if fileTime < timedelta(seconds=45):
                     fOutFile.write( '<audio src="' + item + '" clip-begin="npt=0.000s" clip-end="npt=' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's" id="a_' + str(z).zfill(4)  + '" />'+'\r\n')
                 else:
-                    fOutFile.write( '<audio src="' + item + '" clip-begin="npt=0.000s" clip-end="npt=' + str(15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(z).zfill(4)  + '" />'+'\r\n')
-                    zz=z+1
+                    fOutFile.write('<audio src="' + item + '" clip-begin="npt=0.000s" clip-end="npt=' + str(15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(z).zfill(4)  + '" />'+'\r\n')
+                    zz = z+ 1
                     phraseSeconds = 15
-                    while phraseSeconds <= lFileTime[z-1]-15:
-                        fOutFile.write( '<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + str(phraseSeconds+15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4)  + '" />'+'\r\n')
-                        phraseSeconds +=15
-                        zz +=1
-                    fOutFile.write( '<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4)  + '" />'+'\r\n')
-                
-                fOutFile.write( '</seq>'+'\r\n')
-                fOutFile.write( '</par>'+'\r\n')
-                fOutFile.write( '</seq>'+'\r\n')
+                    while phraseSeconds <= lFileTime[z-1] - 15:
+                        fOutFile.write('<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + str(phraseSeconds+15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4) + '" />' + '\r\n')
+                        phraseSeconds += 15
+                        zz += 1
+                    fOutFile.write('<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4) + '" />' + '\r\n')
 
-                fOutFile.write( '</body>'+'\r\n')
-                fOutFile.write('</smil>'+'\r\n')
+                fOutFile.write('</seq>'+'\r\n')
+                fOutFile.write('</par>' + '\r\n')
+                fOutFile.write('</seq>' + '\r\n')
+
+                fOutFile.write('</body>' + '\r\n')
+                fOutFile.write('</smil>' + '\r\n')
                 fOutFile.close
 
-    def splitFilename(self,  item):
+    def splitFilename(self, item):
         """split filename into list"""
-        if self.comboBoxDaisyTrenner.currentText()=="_-_":
+        if self.comboBoxDaisyTrenner.currentText() == "_-_":
             itemSplit = item.split(self.comboBoxDaisyTrenner.currentText())
             #itemSplit = item.split("_", 2)
-        self.showDebugMessage( "split filename into list" )
-        self.showDebugMessage( itemSplit )
-        self.showDebugMessage( len(itemSplit))
+        self.showDebugMessage("split filename into list")
+        self.showDebugMessage(itemSplit)
+        self.showDebugMessage(len(itemSplit))
         return itemSplit
-    
+
     def extractAuthor(self, itemSplit):
         """extract author """
-        return re.sub ("_", " ", itemSplit[0]  )[2:]
-    
+        return re.sub("_", " ", itemSplit[0])[2:]
+
     def extractTitle(self, itemSplit):
         """extract title """
         # letzter teil
-        itemLeft = itemSplit[len(itemSplit)-1]
+        itemLeft = itemSplit[len(itemSplit) - 1]
         # davon file-ext abtrennen
         itemTitle = itemLeft.split(".mp3")
-        cTitle = re.sub ("_", " ", itemTitle[0]  )
-        self.showDebugMessage( "extract title" ) 
-        self.showDebugMessage( cTitle ) 
+        cTitle = re.sub("_", " ", itemTitle[0])
+        self.showDebugMessage("extract title")
+        self.showDebugMessage(cTitle)
         return cTitle
-    
-    def showDialogCritical(self,  errorMessage):
+
+    def showDialogCritical(self, errorMessage):
         QtGui.QMessageBox.critical(self, "Achtung", errorMessage)
-    
-    def showDebugMessage(self,  debugMessage):
+
+    def showDebugMessage(self, debugMessage):
         if self.app_debugMod == "yes":
             print debugMessage
-    
+
     def actionQuit(self):
         QtGui.qApp.quit()
-    
+
     def main(self):
-        self.showDebugMessage( u"let's rock" )
+        self.showDebugMessage(u"let's rock")
         self.readConfig()
         self.progressBarCopy.setValue(0)
         self.progressBarDaisy.setValue(0)
@@ -805,9 +809,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         for item in self.app_bhzItems:
             self.comboBoxCopyBhz.addItem(item)
         # Ausgabe in Comboncc:maxPageNormal
-        prevYear = str( datetime.datetime.now().year -1 )
-        currentYear = str( datetime.datetime.now().year )
-        nextYear = str( datetime.datetime.now().year +1 )
+        prevYear = str(datetime.datetime.now().year - 1)
+        currentYear = str(datetime.datetime.now().year)
+        nextYear = str(datetime.datetime.now().year + 1)
         for item in self.app_prevAusgItems:
             self.comboBoxCopyBhzAusg.addItem(prevYear + "_" + item)
         for item in self.app_currentAusgItems:
@@ -822,7 +826,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.comboBoxDaisyTrenner.addItem(nextYear)
         self.comboBoxDaisyTrenner.addItem("-")
         self.comboBoxDaisyTrenner.addItem("_")
-        
+
         self.comboBoxPrefBitrate.addItem("64")
         self.comboBoxPrefBitrate.addItem("96")
         self.comboBoxPrefBitrate.addItem("128")
@@ -836,8 +840,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.spinBoxLevel.setValue(1)
         self.spinBoxPages.setValue(0)
         self.show()
- 
-if __name__=='__main__':
+
+
+if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     dyc = DaisyCopy()
     dyc.main()
