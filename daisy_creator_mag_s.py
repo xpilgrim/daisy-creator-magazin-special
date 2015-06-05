@@ -27,7 +27,6 @@ import datetime
 from datetime import timedelta
 import ntpath
 import subprocess
-import types
 import string
 import re
 from mutagen.mp3 import MP3
@@ -43,7 +42,6 @@ import daisy_creator_mag_s_ui
 #TODO: try exept in write ncc und smil wie in daisy_creator_mag korrigieren
 #TODO: checkChangeBitrateAndCopy if korrigiern wie in daisy_creator_mag
 #TODO: variable file in actionOpenMetaFile umbenennen
-#TODO: IOError bei with open korrigieren
 
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
@@ -62,9 +60,11 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         # keeping a reference.
         self.app_debugMod = "yes"
         self.app_bhzItems = ["Zeitschrift"]
-        self.app_prevAusgItems = ["10",  "11",  "12",  "22",  "23",  "24",  "25"]
-        self.app_currentAusgItems = ["01", "02", "03",  "04",  "05",  "06",  "07",  "08",  "09",  "10",  "11",  "12",  "13",  "14",  "15",  "16",  "17",  "18",  "19",  "20",  "21",  "22",  "23",  "24",  "25"]
-        self.app_nextAusgItems = ["01",  "02",  "03",  "04"]
+        self.app_prevAusgItems = ["10", "11", "12", "22", "23", "24", "25"]
+        self.app_currentAusgItems = ["01", "02", "03", "04", "05", "06", "07",
+            "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18",
+            "19", "20", "21", "22", "23", "24", "25"]
+        self.app_nextAusgItems = ["01", "02", "03", "04"]
         self.app_bhzPfad = QtCore.QDir.homePath()
         self.app_bhzPfadZiel = QtCore.QDir.homePath()
         self.app_bhzPfadMeta = QtCore.QDir.homePath()
@@ -87,15 +87,13 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
     def readConfig(self):
         """read Config from file"""
-        fileNotExist = None
-        try:
-            with open( "daisy_creator_mag_s.config" ) as f: pass
-        except IOError as e:
+        fileExist = os.path.isfile("daisy_creator_mag_s.config")
+        if fileExist is False:
             self.showDebugMessage(u"File not exists")
-            self.textEdit.append("<b>Config-Datei konnte nicht geladen werden...</b>")
-            fileNotExist = "yes"
-
-        if  fileNotExist is not None:
+            self.textEdit.append(
+                "<font color='red'>"
+                + "Config-Datei konnte nicht geladen werden: </font>"
+                + "daisy_creator_mag.config")
             return
 
         config = ConfigParser.RawConfigParser()
@@ -103,9 +101,11 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.app_bhzPfad = config.get('Ordner', 'BHZ')
         self.app_bhzPfadZiel = config.get('Ordner', 'BHZ-Ziel')
         self.app_bhzPfadMeta = config.get('Ordner', 'BHZ-Meta')
-        self.app_bhzPfadAusgabeansage  = config.get('Ordner', 'BHZ-Ausgabeansage')
+        self.app_bhzPfadAusgabeansage = config.get('Ordner',
+                                                    'BHZ-Ausgabeansage')
         self.app_bhzPfadIntro = config.get('Ordner', 'BHZ-Intro')
-        self.app_bhzItems = config.get('Blindenhoerzeitschriften', 'BHZ').split(",")
+        self.app_bhzItems = config.get('Blindenhoerzeitschriften',
+                                                        'BHZ').split(",")
 
     def actionOpenCopySource(self):
         """Source of copy"""
@@ -179,16 +179,16 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(file2)
 
     def actionOpenMetaFile(self):
-        """Metadatei zum laden"""
-        file = QtGui.QFileDialog.getOpenFileName (
+        """Metafile to load"""
+        mfile = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Daisy_Meta",
                         self.app_bhzPfadMeta
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
-        if file:
-            self.lineEditMetaSource.setText(file)
+        if mfile:
+            self.lineEditMetaSource.setText(mfile)
 
     def actionRunCopy(self):
         """Hauptroutine zum Kopieren"""
@@ -229,7 +229,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             return
 
         self.showDebugMessage(dirsSource)
-        # Anfangswert des Counters erhoehen wenn AusgAnsage und/oder Intro kopiert werden
+        # add number to counter if copy AusgAnsage and/or Intro
         zCounter = 0
         if self.checkBoxCopyBhzIntro.isChecked():
             zCounter += 1
@@ -241,73 +241,76 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         zList = len(dirsSource)
         self.showDebugMessage(zList)
         dirsSource.sort()
-        # files durchgehen
+        # loop trough files
         for item in dirsSource:
-            if (item[len(item)- 4:len(item)] != ".MP3"
-                            and item[len(item)- 4:len(item)] != ".mp3"):
+            if (item[len(item) - 4:len(item)] != ".MP3"
+                            and item[len(item) - 4:len(item)] != ".mp3"):
                 continue
 
             fileToCopySource = self.lineEditCopySource.text() + "/" + item
-            # pruefen ob file exists
-            fileNotExist = None
-            try:
-                with open(fileToCopySource) as f: pass
-            except IOError as e:
-                self.showDebugMessage(u"File not exists" )
-                fileNotExist = "yes"
-                # max Anzahl korrigieren und Progress aktualisieren
+            # check if file exist
+            fileExist = os.path.isfile(fileToCopySource)
+            if fileExist is False:
+                self.showDebugMessage("File not exists")
+                # change max number and update progress
                 zList = zList - 1
                 pZ = z * 100 / zList
                 self.progressBarCopy.setValue(pZ)
-
+                self.textEdit.append(
+                        "<b>Datei konnte nicht kopiert werden: </b>"
+                        + fileToCopySource)
             self.showDebugMessage(fileToCopySource)
+
             # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
             # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
-            if  fileNotExist is None:
-                # Dateiname in counterDatei suchen, Counter extrahieren und in Dateiname
-                zCounterFiles = 0
-                for line in counterLines:
-                    if line.find(item) != -1:
-                        # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen,
-                        # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind
-                        # wird der rest, der uebereinstimmt gefunden
-                        zCounterFiles += 1
-                        #self.textEdit.append(u"counterline"+ line)
-                        self.showDebugMessage( u"counterline"+ line)
-                        #self.showDebugMessage(  u"counter"+ line[9:11])
-                        self.showDebugMessage(u"counter"+ line[0:02])
-                        # Counter vorne dran
-                        zFileCount = zCounter + int(line[0:02])
-                        #fileToCopyDest = self.lineEditCopyDest.text() + "/" + line[9:11] + "_" + item
-                        fileToCopyDest = self.lineEditCopyDest.text() + "/" + str(zFileCount).zfill(2) + "_" + item
-
-                # dateiname nicht gefunden
-                if zCounterFiles == 0:
-                    self.textEdit.append("<b><font color='red'>Dateiname in Counterdatei nicht gefunden</font></b>:")
-                    self.textEdit.append(ntpath.basename(str(fileToCopySource)))
-                    self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
-                    return
-
-                self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
-                self.showDebugMessage(fileToCopySource)
-                self.showDebugMessage(fileToCopyDest)
-
-                # Bitrate checken, eventuell aendern und gleich in Ziel neu encodieren
-                isChangedAndCopy = self.checkChangeBitrateAndCopy(fileToCopySource, fileToCopyDest)
-                # nicht geaendert also kopieren
-                if  isChangedAndCopy is None:
-                    self.copyFile(fileToCopySource, fileToCopyDest)
-
-                self.checkCangeId3(fileToCopyDest)
-                z += 1
-                self.showDebugMessage(z)
-                self.showDebugMessage(zList)
-                pZ = z * 100 / zList
-                self.showDebugMessage(pZ)
-                self.progressBarCopy.setValue(pZ)
-            else:
+            if fileExist is False:
                 self.textEdit.append("<b>Uebersprungen</b>:")
                 self.textEdit.append(fileToCopySource)
+                continue
+
+            # search filename in counterfile,
+            # extract counter and put into filenema
+            zCounterFiles = 0
+            for line in counterLines:
+                if line.find(item) != -1:
+                    # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen,
+                    # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind
+                    # wird der rest, der uebereinstimmt gefunden
+                    zCounterFiles += 1
+                    self.showDebugMessage("counterline " + line)
+                    self.showDebugMessage(u"counter " + line[0:02])
+                    # Counter on top
+                    zFileCount = zCounter + int(line[0:02])
+                    fileToCopyDest = (self.lineEditCopyDest.text() + "/"
+                                + str(zFileCount).zfill(2) + "_" + item)
+
+            # filenam not found
+            if zCounterFiles == 0:
+                self.textEdit.append(
+                    "<b><font color='red'>"
+                    + "Dateiname in Counterdatei nicht gefunden</font></b>:")
+                self.textEdit.append(ntpath.basename(str(fileToCopySource)))
+                self.textEdit.append("<b>Bearbeitung abgebrochen</b>:")
+                return
+
+            self.textEdit.append(ntpath.basename(str(fileToCopyDest)))
+            self.showDebugMessage(fileToCopySource)
+            self.showDebugMessage(fileToCopyDest)
+
+            # check Bitrate, when necessary recode in new destination
+            isChangedAndCopy = self.checkChangeBitrateAndCopy(
+                                        fileToCopySource, fileToCopyDest)
+            # nothing to do, only copy
+            if isChangedAndCopy is None:
+                self.copyFile(fileToCopySource, fileToCopyDest)
+
+            self.checkCangeId3(fileToCopyDest)
+            z += 1
+            self.showDebugMessage(z)
+            self.showDebugMessage(zList)
+            pZ = z * 100 / zList
+            self.showDebugMessage(pZ)
+            self.progressBarCopy.setValue(pZ)
 
         self.showDebugMessage(z)
 
@@ -317,10 +320,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         if self.checkBoxCopyBhzAusgAnsage.isChecked():
             self.copyAusgabeAnsage()
 
-        # Metadaten laden
-        self.lineEditMetaSource.setText(self.app_bhzPfadMeta + "/Daisy_Meta_" + self.comboBoxCopyBhz.currentText())
+        # load metadata
+        self.lineEditMetaSource.setText(
+            self.app_bhzPfadMeta + "/Daisy_Meta_"
+            + self.comboBoxCopyBhz.currentText())
         self.metaLoadFile()
-        # Zielpfad als Quellpfad fuer Daisy eintragen
+        # enter path of source and destination
         self.lineEditDaisySource.setText(self.lineEditCopyDest.text())
 
     def copyFile(self, fileToCopySource, fileToCopyDest):
@@ -334,46 +339,52 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
     def copyIntro(self):
         """Intro kopieren"""
-        fileToCopySource = self.app_bhzPfadIntro + "/Intro_" + self.comboBoxCopyBhz.currentText() + ".mp3"
-        fileToCopyDest = self.lineEditCopyDest.text() + "/02_" + self.comboBoxCopyBhz.currentText() + "_-_" + self.comboBoxCopyBhzAusg.currentText() + "_Intro.mp3"
+        fileToCopySource = (self.app_bhzPfadIntro + "/Intro_"
+                            + self.comboBoxCopyBhz.currentText() + ".mp3")
+        fileToCopyDest = (self.lineEditCopyDest.text() + "/02_"
+                    + self.comboBoxCopyBhz.currentText() + "_-_"
+                    + self.comboBoxCopyBhzAusg.currentText() + "_Intro.mp3")
         self.showDebugMessage(fileToCopySource)
         self.showDebugMessage(fileToCopyDest)
-        fileNotExist = None
-        try:
-            with open(fileToCopySource) as f: pass
-        except IOError as e:
-            self.showDebugMessage(u"File not exists")
-            self.textEdit.append("<b><font color='red'>Intro konnte nicht kopiert werden</font></b>:")
-            self.textEdit.append(fileToCopySource)
-            fileNotExist = "yes"
 
-        if  fileNotExist is None:
-            #shutil.copy( fileToCopySource, fileToCopyDest )
-            self.copyFile(fileToCopySource, fileToCopyDest)
-            self.checkCangeId3(fileToCopyDest)
+        fileExist = os.path.isfile(fileToCopySource)
+        if fileExist is False:
+            self.showDebugMessage("File not exists")
+            self.textEdit.append(
+                "<font color='red'>"
+                + "Intro nicht vorhanden</font>: "
+                + os.path.basename(str(fileToCopySource)))
+            return
+
+        self.copyFile(fileToCopySource, fileToCopyDest)
+        self.checkCangeId3(fileToCopyDest)
 
     def copyAusgabeAnsage(self):
         """Intro kopieren"""
-        pfadAusgabe = self.app_bhzPfadAusgabeansage + "_" + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_" + self.comboBoxCopyBhz.currentText()
+        pfadAusgabe = (self.app_bhzPfadAusgabeansage + "_"
+                    + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_"
+                    + self.comboBoxCopyBhz.currentText())
         self.showDebugMessage(pfadAusgabe)
-        fileToCopySource = pfadAusgabe + "/" +  self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_" + self.comboBoxCopyBhzAusg.currentText() + ".mp3"
-        fileToCopyDest = self.lineEditCopyDest.text() + "/01_" +  self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_" + self.comboBoxCopyBhzAusg.currentText() + ".mp3"
+        fileToCopySource = (pfadAusgabe + "/"
+                + self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_"
+                + self.comboBoxCopyBhzAusg.currentText() + ".mp3")
+        fileToCopyDest = (self.lineEditCopyDest.text() + "/01_"
+                + self.comboBoxCopyBhz.currentText() + "_-_Ausgabe_"
+                + self.comboBoxCopyBhzAusg.currentText() + ".mp3")
         self.showDebugMessage(fileToCopySource)
         self.showDebugMessage(fileToCopyDest)
-        fileNotExist = None
-        try:
-            with open( fileToCopySource ) as f: pass
-        except IOError as e:
-            self.showDebugMessage(u"File not exists")
-            self.textEdit.append("<b><font color='red'>Ausgabeansage konnte nicht kopiert werden</font></b>:")
-            self.textEdit.append(fileToCopySource)
 
-            fileNotExist = "yes"
+        fileExist = os.path.isfile(fileToCopySource)
+        if fileExist is False:
+            self.showDebugMessage("File not exists")
+            self.textEdit.append(
+                "<font color='red'>"
+                + "Ausgabeansage nicht vorhanden</font>: "
+                + os.path.basename(str(fileToCopySource)))
+            return
 
-        if  fileNotExist is None:
-            #shutil.copy( fileToCopySource, fileToCopyDest )
-            self.copyFile(fileToCopySource, fileToCopyDest)
-            self.checkCangeId3(fileToCopyDest)
+        self.copyFile(fileToCopySource, fileToCopyDest)
+        self.checkCangeId3(fileToCopyDest)
 
     def readCounterFile(self):
         """Datei mit Dateinamen und Counter einlesen """
@@ -381,12 +392,15 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             f = open(str(self.lineEditFileCounter.text()), 'r')
             lines = f.readlines()
             f.close()
-            self.textEdit.append("<b>Counter-Datei gelesen: </b>" + self.lineEditFileCounter.text())
+            self.textEdit.append("<b>Counter-Datei gelesen: </b>"
+                                    + self.lineEditFileCounter.text())
             #for item in lines:
             #    self.textEdit.append("line: " + item)
         except IOError as (errno, strerror):
             lines = None
-            self.showDebugMessage("read_from_file_lines_in_list: nicht lesbar: " + filename)
+            self.showDebugMessage(
+                "read_from_file_lines_in_list: nicht lesbar: "
+                + self.lineEditFileCounter.text())
         return lines
 
     def checkCangeId3(self, fileToCopyDest):
@@ -401,10 +415,13 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         if tag is not None:
             if self.checkBoxCopyID3Change.isChecked():
                 audio.delete()
-                self.textEdit.append("<b>ID3 entfernt bei</b>: " + ntpath.basename(str(fileToCopyDest)))
+                self.textEdit.append("<b>ID3 entfernt bei</b>: "
+                                + ntpath.basename(str(fileToCopyDest)))
                 self.showDebugMessage(u"ID3 entfernt bei " + fileToCopyDest)
             else:
-                self.textEdit.append("<b>ID3 vorhanden, aber NICHT entfernt bei</b>: " + fileToCopyDest)
+                self.textEdit.append(
+                    "<b>ID3 vorhanden, aber NICHT entfernt bei</b>: "
+                    + fileToCopyDest)
 
     def checkChangeBitrateAndCopy(self, fileToCopySource, fileToCopyDest):
         """Bitrate aendern und an Ziel encodieren"""
@@ -412,17 +429,24 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         audioSource = MP3(fileToCopySource)
         if audioSource.info.bitrate != int(self.comboBoxPrefBitrate.currentText())* 1000:
             isEncoded = None
-            self.textEdit.append(u"Bitrate Vorgabe: " + str(self.comboBoxPrefBitrate.currentText()))
-            self.textEdit.append(u"<b>Bitrate folgender Datei entspricht nicht der Vorgabe:</b> " + str(audioSource.info.bitrate/1000) + " " + fileToCopySource)
+            self.textEdit.append(u"Bitrate Vorgabe: "
+                            + str(self.comboBoxPrefBitrate.currentText()))
+            self.textEdit.append(
+            u"<b>Bitrate folgender Datei entspricht nicht der Vorgabe:</b> "
+            + str(audioSource.info.bitrate / 1000) + " " + fileToCopySource)
 
             if self.checkBoxCopyBitrateChange.isChecked():
-                self.textEdit.append(u"<b>Bitrate aendern bei</b>: " + fileToCopyDest)
+                self.textEdit.append(u"<b>Bitrate aendern bei</b>: "
+                                                        + fileToCopyDest)
                 isEncoded = self.encodeFile(fileToCopySource, fileToCopyDest)
                 if isEncoded is not None:
-                    self.textEdit.append(u"<b>Bitrate geaendert bei</b>: " + fileToCopyDest)
+                    self.textEdit.append(u"<b>Bitrate geaendert bei</b>: "
+                                                        + fileToCopyDest)
                     isChangedAndCopy = True
             else:
-                self.textEdit.append(u"<b>Bitrate wurde NICHT geaendern bei</b>: " + fileToCopyDest)
+                self.textEdit.append(
+                    u"<b>Bitrate wurde NICHT geaendern bei</b>: "
+                    + fileToCopyDest)
         return isChangedAndCopy
 
     def encodeFile(self, fileToCopySource, fileToCopyDest):
@@ -473,18 +497,13 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             return None
 
     def metaLoadFile(self):
-        fileNotExist = None
-        try:
-            with open( str(self.lineEditMetaSource.text()) ) as f: pass
-        except IOError as e:
-            self.showDebugMessage( u"File not exists")
+        fileExist = os.path.isfile(self.lineEditMetaSource.text())
+        if fileExist is False:
+            self.showDebugMessage("File not exists")
             self.textEdit.append(
                 "<font color='red'>"
                 + "Meta-Datei konnte nicht geladen werden</font>: "
                 + os.path.basename(str(self.lineEditMetaSource.text())))
-            fileNotExist = "yes"
-
-        if  fileNotExist is not None:
             return
 
         config = ConfigParser.RawConfigParser()
@@ -495,8 +514,10 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.lineEditMetaTitle.setText(config.get('Daisy_Meta', 'Titel'))
         self.lineEditMetaEdition.setText(config.get('Daisy_Meta', 'Edition'))
         self.lineEditMetaNarrator.setText(config.get('Daisy_Meta', 'Sprecher'))
-        self.lineEditMetaKeywords.setText(config.get('Daisy_Meta', 'Stichworte'))
-        self.lineEditMetaRefOrig.setText(config.get('Daisy_Meta', 'ISBN/Ref-Nr.Original'))
+        self.lineEditMetaKeywords.setText(config.get('Daisy_Meta',
+                                                        'Stichworte'))
+        self.lineEditMetaRefOrig.setText(config.get('Daisy_Meta',
+                                            'ISBN/Ref-Nr.Original'))
         self.lineEditMetaPublisher.setText(config.get('Daisy_Meta', 'Verlag'))
         self.lineEditMetaYear.setText(config.get('Daisy_Meta', 'Jahr'))
 
@@ -556,7 +577,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         lTotalElapsedTime.append(0)
         lFileTime = []
         for item in dirAudios:
-            fileToCheck = os.path.join(str(self.lineEditDaisySource.text()), item)
+            fileToCheck = os.path.join(str(
+                            self.lineEditDaisySource.text()), item)
             audioSource = MP3(fileToCheck)
             self.showDebugMessage(item + " " + str(audioSource.info.length))
             totalAudioLength += audioSource.info.length
