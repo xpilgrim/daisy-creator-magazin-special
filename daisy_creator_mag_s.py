@@ -259,11 +259,11 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 self.textEdit.append(
                         "<b>Datei konnte nicht kopiert werden: </b>"
                         + fileToCopySource)
-            self.showDebugMessage(fileToCopySource)
+                self.showDebugMessage(fileToCopySource)
 
             # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
             # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
-            if fileExist is False:
+
                 self.textEdit.append("<b>Uebersprungen</b>:")
                 self.textEdit.append(fileToCopySource)
                 continue
