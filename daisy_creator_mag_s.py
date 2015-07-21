@@ -40,8 +40,6 @@ import daisy_creator_mag_s_ui
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
 #TODO: try exept in write ncc und smil wie in daisy_creator_mag korrigieren
-#TODO: checkChangeBitrateAndCopy if korrigiern wie in daisy_creator_mag
-#TODO: variable file in actionOpenMetaFile umbenennen
 
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
@@ -331,7 +329,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def copyFile(self, fileToCopySource, fileToCopyDest):
         """Datei kopieren"""
         try:
-            shutil.copy(fileToCopySource, fileToCopyDest )
+            shutil.copy(fileToCopySource, fileToCopyDest)
         except Exception, e:
             logMessage = u"copy_file Error: %s" % str(e)
             self.showDebugMessage(logMessage)
@@ -427,26 +425,29 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         """Bitrate aendern und an Ziel encodieren"""
         isChangedAndCopy = None
         audioSource = MP3(fileToCopySource)
-        if audioSource.info.bitrate != int(self.comboBoxPrefBitrate.currentText())* 1000:
-            isEncoded = None
-            self.textEdit.append(u"Bitrate Vorgabe: "
+        if (audioSource.info.bitrate ==
+            int(self.comboBoxPrefBitrate.currentText()) * 1000):
+            return isChangedAndCopy
+
+        isEncoded = None
+        self.textEdit.append(u"Bitrate Vorgabe: "
                             + str(self.comboBoxPrefBitrate.currentText()))
-            self.textEdit.append(
+        self.textEdit.append(
             u"<b>Bitrate folgender Datei entspricht nicht der Vorgabe:</b> "
             + str(audioSource.info.bitrate / 1000) + " " + fileToCopySource)
 
-            if self.checkBoxCopyBitrateChange.isChecked():
-                self.textEdit.append(u"<b>Bitrate aendern bei</b>: "
+        if self.checkBoxCopyBitrateChange.isChecked():
+            self.textEdit.append(u"<b>Bitrate aendern bei</b>: "
                                                         + fileToCopyDest)
-                isEncoded = self.encodeFile(fileToCopySource, fileToCopyDest)
-                if isEncoded is not None:
-                    self.textEdit.append(u"<b>Bitrate geaendert bei</b>: "
+            isEncoded = self.encodeFile(fileToCopySource, fileToCopyDest)
+            if isEncoded is not None:
+                self.textEdit.append(u"<b>Bitrate geaendert bei</b>: "
                                                         + fileToCopyDest)
-                    isChangedAndCopy = True
-            else:
-                self.textEdit.append(
-                    u"<b>Bitrate wurde NICHT geaendern bei</b>: "
-                    + fileToCopyDest)
+                isChangedAndCopy = True
+        else:
+            self.textEdit.append(
+                u"<b>Bitrate wurde NICHT geaendern bei</b>: "
+                + fileToCopyDest)
         return isChangedAndCopy
 
     def encodeFile(self, fileToCopySource, fileToCopyDest):
@@ -463,8 +464,10 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.showDebugMessage(u"type(fileToCopyDest)")
         self.showDebugMessage(type(fileToCopyDest))
 
-        #p = subprocess.Popen([c_lame_encoder, "-b",  "64", "-m",  "m",  fileToCopySource, fileToCopyDest ],  stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(  )
-        p = subprocess.Popen([c_lame_encoder, "-b", self.comboBoxPrefBitrate.currentText(), "-m",  "m",  fileToCopySource, fileToCopyDest ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        p = subprocess.Popen([c_lame_encoder, "-b",
+                self.comboBoxPrefBitrate.currentText(),
+                "-m", "m", fileToCopySource, fileToCopyDest],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
         self.showDebugMessage(u"returncode 0")
         self.showDebugMessage(p[0])
@@ -472,9 +475,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.showDebugMessage(p[1])
 
         # erfolgsmeldung suchen, wenn nicht gefunden: -1
-        n_encode_percent = string.find( p[1], "(100%)")
-        n_encode_percent_1 = string.find( p[1], "(99%)")
-        self.showDebugMessage( n_encode_percent )
+        n_encode_percent = string.find(p[1], "(100%)")
+        n_encode_percent_1 = string.find(p[1], "(99%)")
+        self.showDebugMessage(n_encode_percent)
         c_complete = "no"
 
         # bei kurzen files kommt die 100% meldung nicht,
@@ -544,7 +547,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         dirAudios = []
         dirItems.sort()
         for item in dirItems:
-            if item[len(item)- 4:len(item)] == ".MP3" or item[len(item)- 4:len(item) ] == ".mp3":
+            if (item[len(item) - 4:len(item)]
+                == ".MP3" or item[len(item) - 4:len(item)] == ".mp3"):
                 dirAudios.append(item)
                 self.textEditDaisy.append(item)
                 zMp3 += 1
@@ -593,7 +597,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def writeNCC(self, cTotalTime, zMp3, dirAudios):
         """NCC-Page schreiben"""
         try:
-            fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), "ncc.html"), 'w')
+            fOutFile = open(os.path.join(
+                str(self.lineEditDaisySource.text()), "ncc.html"), 'w')
         except IOError as (errno, strerror):
             self.showDebugMessage("I/O error({0}): {1}".format(errno, strerror))
         else:
@@ -692,7 +697,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             fOutFile.write('</head>' + '\r\n')
             fOutFile.write('<body>' + '\r\n')
 
-            #fOutFile.write( '<ref src="0001.smil" title="'+ self.lineEditMetaTitle.text() + '" id="smil_0001"/>'+'\r\n')
             z = 0
             for item in dirAudios:
                 z += 1
@@ -700,23 +704,29 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 itemSplit = self.splitFilename(item)
                 cAuthor = self.extractAuthor(itemSplit)
                 cTitle = self.extractTitle(itemSplit)
-                fOutFile.write('<ref src="'+ str(z).zfill(4) +'.smil" title="' + cAuthor + " - " + cTitle + '" id="smil_' + str(z).zfill(4) + '"/>'+'\r\n')
+                fOutFile.write(
+                    '<ref src="' + str(z).zfill(4) + '.smil" title="'
+                    + cAuthor + " - " + cTitle + '" id="smil_'
+                    + str(z).zfill(4) + '"/>' + '\r\n')
 
-            fOutFile.write( '</body>'+'\r\n')
-            fOutFile.write( '</smil>'+'\r\n')
+            fOutFile.write('</body>' + '\r\n')
+            fOutFile.write('</smil>' + '\r\n')
             fOutFile.close
 
     def writeSmil(self, lTotalElapsedTime, lFileTime, dirAudios):
         """Smil-Pages schreiben"""
         z = 0
         for item in dirAudios:
-            z +=1
+            z += 1
 
             try:
                 filename = str(z).zfill(4) + '.smil'
-                fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), filename), 'w')
+                fOutFile = open(
+                    os.path.join(str(self.lineEditDaisySource.text()),
+                    filename), 'w')
             except IOError as (errno, strerror):
-                self.showDebugMessage( "I/O error({0}): {1}".format(errno, strerror))
+                self.showDebugMessage(
+                            "I/O error({0}): {1}".format(errno, strerror))
             else:
                 self.textEditDaisy.append(str(z).zfill(4) + u".smil - File schreiben")
                 # trennen
@@ -728,7 +738,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
                 fOutFile.write('<smil>' + '\r\n')
                 fOutFile.write('<head>' + '\r\n')
-                fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
+                fOutFile.write(
+                    '<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>'
+                    + '\r\n')
                 totalElapsedTime = timedelta(seconds=lTotalElapsedTime[z - 1])
                 splittedTtotalElapsedTime = str(totalElapsedTime).split(".")
                 print splittedTtotalElapsedTime
@@ -739,13 +751,16 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 else:
                     totalElapsedTimeMilliMicro = splittedTtotalElapsedTime[1][0:3]
 
-                fOutFile.write( '<meta name="ncc:totalElapsedTime" content="' +totalElapsedTimehhmmss + "." + totalElapsedTimeMilliMicro +'"/>'+'\r\n')
+                fOutFile.write(
+                    '<meta name="ncc:totalElapsedTime" content="'
+                    + totalElapsedTimehhmmss + "."
+                    + totalElapsedTimeMilliMicro + '"/>' + '\r\n')
 
-                fileTime = timedelta(seconds = lFileTime[z-1])
+                fileTime = timedelta(seconds=lFileTime[z - 1])
                 splittedFileTime = str(fileTime).split(".")
                 FileTimehhmmss = splittedFileTime[0].zfill(8)
                 # wenn keine Millisicrosec gibts nur ein Element in der Liste
-                if len(splittedFileTime) >1:
+                if len(splittedFileTime) > 1:
                     if len(splittedFileTime[1]) >= 3:
                         fileTimeMilliMicro = splittedFileTime[1][0:3]
                     elif len(splittedFileTime[1]) == 2:
@@ -753,33 +768,63 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 else:
                     fileTimeMilliMicro = "000"
 
-                fOutFile.write('<meta name="ncc:timeInThisSmil" content="' + FileTimehhmmss + "." + fileTimeMilliMicro +'" />' + '\r\n')
-                fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>'+'\r\n')
-                fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
-                fOutFile.write('<meta name="dc:title" content="' +  cTitle  + '"/>' + '\r\n')
+                fOutFile.write(
+                    '<meta name="ncc:timeInThisSmil" content="'
+                    + FileTimehhmmss + "." + fileTimeMilliMicro
+                    + '" />' + '\r\n')
+                fOutFile.write(
+                    '<meta name="dc:format" content="Daisy 2.02"/>' + '\r\n')
+                fOutFile.write(
+                    '<meta name="dc:identifier" content="'
+                    + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+                fOutFile.write(
+                    '<meta name="dc:title" content="'
+                    + cTitle + '"/>' + '\r\n')
                 fOutFile.write('<layout>' + '\r\n')
                 fOutFile.write('<region id="txt-view"/>' + '\r\n')
                 fOutFile.write('</layout>' + '\r\n')
                 fOutFile.write('</head>' + '\r\n')
                 fOutFile.write('<body>' + '\r\n')
-                lFileTimeSeconds = str(lFileTime[z-1]).split(".")
-                fOutFile.write('<seq dur="' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's">' + '\r\n')
-                fOutFile.write('<par endsync="last">'+'\r\n')
-                fOutFile.write('<text src="ncc.html#cnt_' + str(z).zfill(4) + '" id="txt_' + str(z).zfill(4) + '" />'+'\r\n')
+                lFileTimeSeconds = str(lFileTime[z - 1]).split(".")
+                fOutFile.write(
+                    '<seq dur="' + lFileTimeSeconds[0] + '.'
+                    + fileTimeMilliMicro + 's">' + '\r\n')
+                fOutFile.write('<par endsync="last">' + '\r\n')
+                fOutFile.write(
+                    '<text src="ncc.html#cnt_' + str(z).zfill(4)
+                    + '" id="txt_' + str(z).zfill(4) + '" />' + '\r\n')
                 fOutFile.write('<seq>' + '\r\n')
                 if fileTime < timedelta(seconds=45):
-                    fOutFile.write( '<audio src="' + item + '" clip-begin="npt=0.000s" clip-end="npt=' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's" id="a_' + str(z).zfill(4)  + '" />'+'\r\n')
+                    fOutFile.write(
+                        '<audio src="' + item
+                        + '" clip-begin="npt=0.000s" clip-end="npt='
+                        + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro
+                        + 's" id="a_' + str(z).zfill(4) + '" />' + '\r\n')
                 else:
-                    fOutFile.write('<audio src="' + item + '" clip-begin="npt=0.000s" clip-end="npt=' + str(15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(z).zfill(4)  + '" />'+'\r\n')
-                    zz = z+ 1
+                    fOutFile.write(
+                        '<audio src="' + item
+                        + '" clip-begin="npt=0.000s" clip-end="npt='
+                        + str(15) + '.' + fileTimeMilliMicro + 's" id="a_'
+                        + str(z).zfill(4) + '" />' + '\r\n')
+                    zz = z + 1
                     phraseSeconds = 15
-                    while phraseSeconds <= lFileTime[z-1] - 15:
-                        fOutFile.write('<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + str(phraseSeconds+15) + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4) + '" />' + '\r\n')
+                    while phraseSeconds <= lFileTime[z - 1] - 15:
+                        fOutFile.write(
+                            '<audio src="' + item + '" clip-begin="npt='
+                            + str(phraseSeconds) + '.' + fileTimeMilliMicro
+                            + 's" clip-end="npt=' + str(phraseSeconds + 15)
+                            + '.' + fileTimeMilliMicro + 's" id="a_'
+                            + str(zz).zfill(4) + '" />' + '\r\n')
                         phraseSeconds += 15
                         zz += 1
-                    fOutFile.write('<audio src="' + item + '" clip-begin="npt='+ str(phraseSeconds)+ '.' + fileTimeMilliMicro + 's" clip-end="npt=' + lFileTimeSeconds[0] + '.' + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4) + '" />' + '\r\n')
+                    fOutFile.write(
+                        '<audio src="' + item + '" clip-begin="npt='
+                        + str(phraseSeconds) + '.' + fileTimeMilliMicro
+                        + 's" clip-end="npt=' + lFileTimeSeconds[0] + '.'
+                        + fileTimeMilliMicro + 's" id="a_' + str(zz).zfill(4)
+                        + '" />' + '\r\n')
 
-                fOutFile.write('</seq>'+'\r\n')
+                fOutFile.write('</seq>' + '\r\n')
                 fOutFile.write('</par>' + '\r\n')
                 fOutFile.write('</seq>' + '\r\n')
 
