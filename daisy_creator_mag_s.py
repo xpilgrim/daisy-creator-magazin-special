@@ -36,7 +36,6 @@ import ConfigParser
 import daisy_creator_mag_s_ui
 
 #TODO: Check for special characters in filenames
-#TODO: Hilfe-Datei einbinden
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
 #TODO: zeilenlaenge in write ncc und smil kuerzen
@@ -104,6 +103,28 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.app_bhzPfadIntro = config.get('Ordner', 'BHZ-Intro')
         self.app_bhzItems = config.get('Blindenhoerzeitschriften',
                                                         'BHZ').split(",")
+
+    def readHelp(self):
+        """read Readme from file"""
+        fileExist = os.path.isfile("README.md")
+        if fileExist is False:
+            self.showDebugMessage("File not exists")
+            self.textEdit.append(
+                "<font color='red'>"
+                + "Hilfe-Datei konnte nicht geladen werden: </font>"
+                + "README.md")
+            return
+
+        fobj = open("README.md")
+        for line in fobj:
+            self.textEditHelp.append(line)
+        # set cursor on top of helpfile
+        cursor = self.textEditHelp.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.Start,
+                            QtGui.QTextCursor.MoveAnchor, 0)
+        self.textEditHelp.setTextCursor(cursor)
+        fobj.close()
+
 
     def actionOpenCopySource(self):
         """Source of copy"""
@@ -906,6 +927,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         # Vorbelegung spinboxen
         self.spinBoxLevel.setValue(1)
         self.spinBoxPages.setValue(0)
+        # Help-Text
+        self.readHelp()
         self.show()
 
 

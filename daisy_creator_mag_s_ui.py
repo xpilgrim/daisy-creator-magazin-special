@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'daisy_creator_mag_s.ui'
 #
-# Created: Wed Oct 21 09:22:04 2015
+# Created: Fri May  6 17:17:24 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -265,17 +265,9 @@ class Ui_DaisyMain(object):
         self.tabWidget.addTab(self.tab_4, _fromUtf8(""))
         self.tab_5 = QtGui.QWidget()
         self.tab_5.setObjectName(_fromUtf8("tab_5"))
-        self.label_12 = QtGui.QLabel(self.tab_5)
-        self.label_12.setGeometry(QtCore.QRect(20, 30, 610, 25))
-        font = QtGui.QFont()
-        font.setPointSize(16)
-        self.label_12.setFont(font)
-        self.label_12.setObjectName(_fromUtf8("label_12"))
-        self.line_4 = QtGui.QFrame(self.tab_5)
-        self.line_4.setGeometry(QtCore.QRect(0, 60, 790, 3))
-        self.line_4.setFrameShape(QtGui.QFrame.HLine)
-        self.line_4.setFrameShadow(QtGui.QFrame.Sunken)
-        self.line_4.setObjectName(_fromUtf8("line_4"))
+        self.textEditHelp = QtGui.QTextEdit(self.tab_5)
+        self.textEditHelp.setGeometry(QtCore.QRect(0, 0, 791, 691))
+        self.textEditHelp.setObjectName(_fromUtf8("textEditHelp"))
         self.tabWidget.addTab(self.tab_5, _fromUtf8(""))
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         DaisyMain.setCentralWidget(self.centralwidget)
@@ -351,6 +343,5 @@ class Ui_DaisyMain(object):
         self.commandLinkButtonDaisy.setText(_translate("DaisyMain", "Daisyfizieren", None))
         self.pushButtonClose2.setText(_translate("DaisyMain", "Quit", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DaisyMain", "4 Daisy", None))
-        self.label_12.setText(_translate("DaisyMain", "Einstellungen", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("DaisyMain", "Help", None))
 
