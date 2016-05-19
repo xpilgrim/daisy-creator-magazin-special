@@ -38,7 +38,7 @@ import daisy_creator_mag_s_ui
 #TODO: Check for special characters in filenames
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
-#TODO: zeilenlaenge in write ncc und smil kuerzen
+#TODO: zeilenlaenge in write smil kuerzen
 
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
@@ -124,7 +124,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                             QtGui.QTextCursor.MoveAnchor, 0)
         self.textEditHelp.setTextCursor(cursor)
         fobj.close()
-
 
     def actionOpenCopySource(self):
         """Source of copy"""
@@ -625,55 +624,84 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             return
         self.textEditDaisy.append(u"<b>NCC-Datei schreiben</b>")
         fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
-        fOutFile.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' + '\r\n')
+        fOutFile.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0'
+            + ' Transitional//EN"'
+            + ' "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+            + '\r\n')
         fOutFile.write('<html xmlns="http://www.w3.org/1999/xhtml">' + '\r\n')
-        fOutFile.write('<head>'+ '\r\n')
-        fOutFile.write('<meta http-equiv="Content-type" content="text/html; charset=utf-8"/>' + '\r\n')
-        fOutFile.write('<title>' + self.comboBoxCopyBhz.currentText() + '</title>' + '\r\n')
+        fOutFile.write('<head>' + '\r\n')
+        fOutFile.write('<meta http-equiv="Content-type" '
+            + 'content="text/html; charset=utf-8"/>' + '\r\n')
+        fOutFile.write('<title>' + self.comboBoxCopyBhz.currentText()
+                       + '</title>' + '\r\n')
 
-        fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:generator" '
+            + 'content="KOM-IN-DaisyCreator"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:revision" content="1"/>' + '\r\n')
-        today = datetime.date.today()
-        fOutFile.write('<meta name="ncc:producedDate" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:revisionDate" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:tocItems" content="' + str(zMp3) + '"/>' + '\r\n')
 
-        fOutFile.write('<meta name="ncc:totalTime" content="' + cTotalTime+ '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:narrator" content="' + self.lineEditMetaNarrator.text() + '"/>' + '\r\n')
+        today = datetime.date.today()
+        fOutFile.write('<meta name="ncc:producedDate" content="'
+            + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:revisionDate" content="'
+            + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:tocItems" content="'
+            + str(zMp3) + '"/>' + '\r\n')
+
+        fOutFile.write('<meta name="ncc:totalTime" content="'
+            + cTotalTime + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:narrator" content="'
+            + self.lineEditMetaNarrator.text() + '"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:pageNormal" content="0"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:pageFront" content="0"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:pageSpecial" content="0"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:sidebars" content="0"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:prodNotes" content="0"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:footnotes" content="0"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:depth" content="' + str(self.spinBoxLevel.value()) + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:maxPageNormal" content="' +str(self.spinBoxPages.value()) +'"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:depth" content="'
+            + str(self.spinBoxLevel.value()) + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:maxPageNormal" content="'
+            + str(self.spinBoxPages.value()) + '"/>' + '\r\n')
         fOutFile.write('<meta name="ncc:charset" content="utf-8"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:multimediaType" content="audioNcc"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:multimediaType" content="audioNcc"/>'
+            + '\r\n')
         #fOutFile.write( '<meta name="ncc:kByteSize" content=" "/>'+ '\r\n')
         fOutFile.write('<meta name="ncc:setInfo" content="1 of 1"/>' + '\r\n')
 
-        fOutFile.write('<meta name="ncc:sourceDate" content="' + self.lineEditMetaYear.text() + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:sourceEdition" content="' + self.lineEditMetaEdition.text() + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:sourcePublisher" content="' + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:sourceDate" content="'
+            + self.lineEditMetaYear.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:sourceEdition" content="'
+            + self.lineEditMetaEdition.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:sourcePublisher" content="'
+            + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
 
         #Anzahl files = Records 2x + ncc.html + master.smil
-        fOutFile.write( '<meta name="ncc:files" content="' + str(zMp3 + zMp3 + 2) + '"/>' + '\r\n')
-        fOutFile.write( '<meta name="ncc:producer" content="' + self.lineEditMetaProducer.text()+ '"/>'+ '\r\n')
+        fOutFile.write('<meta name="ncc:files" content="'
+            + str(zMp3 + zMp3 + 2) + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:producer" content="'
+            + self.lineEditMetaProducer.text() + '"/>' + '\r\n')
 
-        fOutFile.write('<meta name="dc:creator" content="' + self.lineEditMetaAutor.text() + '"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:date" content="' + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>'+ '\r\n')
-        fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:language" content="de" scheme="ISO 639"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:publisher" content="' + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
-
-        fOutFile.write('<meta name="dc:source" content="' +self.lineEditMetaRefOrig.text()+ '"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:subject" content="' + self.lineEditMetaKeywords.text() + '"/>'+ '\r\n')
-        fOutFile.write('<meta name="dc:title" content="' +self.lineEditMetaTitle.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:creator" content="'
+            + self.lineEditMetaAutor.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:date" content="'
+            + today.strftime("%Y-%m-%d") + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:identifier" content="'
+            + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:language" content="de"'
+                        + ' scheme="ISO 639"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:publisher" content="'
+            + self.lineEditMetaPublisher.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:source" content="'
+            + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:subject" content="'
+            + self.lineEditMetaKeywords.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:title" content="'
+            + self.lineEditMetaTitle.text() + '"/>' + '\r\n')
         # Medibus-OK items
-        fOutFile.write('<meta name="prod:audioformat" content="wave 44 kHz"/>' + '\r\n')
-        fOutFile.write('<meta name="prod:compression" content="mp3 ' + self.comboBoxPrefBitrate.currentText() + '/ kb/s"/>'+ '\r\n')
+        fOutFile.write('<meta name="prod:audioformat" content="wave 44 kHz"/>'
+                       + '\r\n')
+        fOutFile.write('<meta name="prod:compression" content="mp3 '
+            + self.comboBoxPrefBitrate.currentText() + '/ kb/s"/>' + '\r\n')
         fOutFile.write('<meta name="prod:localID" content=" "/>' + '\r\n')
         fOutFile.write('</head>' + '\r\n')
         fOutFile.write('<body>' + '\r\n')
@@ -681,13 +709,19 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         for item in dirAudios:
             z += 1
             if z == 1:
-                fOutFile.write('<h1 class="title" id="cnt_0001"><a href="0001.smil#txt_0001">' + self.lineEditMetaAutor.text()+ ": " + self.lineEditMetaTitle.text() + '</a></h1>' + '\r\n')
+                fOutFile.write('<h1 class="title" id="cnt_0001">'
+                + '<a href="0001.smil#txt_0001">'
+                + self.lineEditMetaAutor.text() + ": "
+                + self.lineEditMetaTitle.text() + '</a></h1>' + '\r\n')
                 continue
             # trennen
             itemSplit = self.splitFilename(item)
             cAuthor = self.extractAuthor(itemSplit)
             cTitle = self.extractTitle(itemSplit)
-            fOutFile.write('<h' + str(self.spinBoxLevel.value()) + ' id="cnt_' + str(z).zfill(4) + '"><a href="' + str(z).zfill(4) + '.smil#txt_' + str(z).zfill(4) + '">' + cAuthor +" - " + cTitle + '</a></h1>' + '\r\n')
+            fOutFile.write('<h' + str(self.spinBoxLevel.value())
+                + ' id="cnt_' + str(z).zfill(4) + '"><a href="'
+                + str(z).zfill(4) + '.smil#txt_' + str(z).zfill(4) + '">'
+                + cAuthor + " - " + cTitle + '</a></h1>' + '\r\n')
 
         fOutFile.write("</body>" + '\r\n')
         fOutFile.write("</html>" + '\r\n')
