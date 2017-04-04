@@ -182,20 +182,6 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append("Counter-Datei:")
             self.textEdit.append(file1)
 
-    def actionOpenCopyFile2(self):
-        """Zusatzdatei 2 zum kopieren"""
-        file2 = QtGui.QFileDialog.getOpenFileName(
-                        self,
-                        "Datei 2",
-                        QtCore.QDir.homePath()
-                    )
-        # Don't attempt to open if open dialog
-        # was cancelled away.
-        if file2:
-            self.lineEdit_4.setText(file2)
-            self.textEdit.append("Zusatz-Datei 2:")
-            self.textEdit.append(file2)
-
     def actionOpenMetaFile(self):
         """Metafile to load"""
         mfile = QtGui.QFileDialog.getOpenFileName(
