@@ -241,15 +241,21 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         if self.checkBoxCopyBhzAusgAnsage.isChecked():
             zCounter += 1
 
-        self.textEdit.append("<b>Kopieren:</b>")
         z = 0
         nDirsSource = len(dirsSource)
         if nCounterLines != nDirsSource:
             self.textEdit.append(
                     "<b><font color='red'>"
-                    + "Anzahl der mp3-Dateien stimmt nicht mit Counter-Datei "
-                    + "ueberein!</font></b>:")
+                    + "Anzahl der mp3-Dateien (" + str(nDirsSource)
+                    + ")stimmt nicht mit Counter-Datei ("
+                    + str(nCounterLines)
+                    + ") ueberein!</font></b>")
 
+        filesOK = self.compareFiles(dirsSource, counterLines)
+        if filesOK is None:
+            return
+        #return
+        self.textEdit.append("<b>Kopieren:</b>")
         self.showDebugMessage(nDirsSource)
         dirsSource.sort()
         # loop trough files
@@ -276,14 +282,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 continue
 
             # search filename in counterfile,
-            # extract counter and put into filenema
-            zCounterFiles = 0
+            # extract counter and set it on top of the filename
+            nFound = 0
             for line in counterLines:
-                if line.find(item) != -1:
-                    # Achtung: er findet hier natuerlich auch unvollstaendige dateinamen,
-                    # z.B. wenn vorn nur paar zeichen fehlen oder welche zuviel sind
-                    # wird der rest, der uebereinstimmt gefunden
-                    zCounterFiles += 1
+                nLenLine = len(line) - 1
+                if line[3:nLenLine] == item:
+                    nFound += 1
                     self.showDebugMessage("counterline " + line)
                     self.showDebugMessage(u"counter " + line[0:02])
                     # Counter on top
@@ -291,8 +295,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     fileToCopyDest = (self.lineEditCopyDest.text() + "/"
                                 + str(zFileCount).zfill(2) + "_" + item)
 
-            # filenam not found
-            if zCounterFiles == 0:
+            # filename not found
+            if nFound == 0:
                 self.textEdit.append(
                     "<b><font color='red'>"
                     + "Dateiname in Counterdatei nicht gefunden</font></b>:")
@@ -459,8 +463,31 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 + fileToCopyDest)
         return isChangedAndCopy
 
-    def compareFiles(self,):
+    def compareFiles(self, dirsSource, counterLines):
         """compare files from source with conter file"""
+        self.showDebugMessage(counterLines)
+        self.textEdit.append("<b>Pruefen...</b>")
+        # loop trough files
+        for item in dirsSource:
+            if (item[len(item) - 4:len(item)] != ".MP3"
+                            and item[len(item) - 4:len(item)] != ".mp3"):
+                continue
+
+            nFound = 0
+            for line in counterLines:
+                # remove line break
+                nLenLine = len(line) - 1
+                if line[3:nLenLine] == item:
+                    nFound += 1
+
+            if nFound == 0:
+                self.textEdit.append(
+                "<b><font color='red'>"
+                + "Dateiname in Counterdatei nicht gefunden</font></b>:")
+                self.textEdit.append(item)
+                self.textEdit.append("<b>Bearbeitung abgebrochen!</b>")
+                return None
+        return "OK"
 
     def encodeFile(self, fileToCopySource, fileToCopyDest):
         """mp3-files mit entspr Bitrate encoden"""
