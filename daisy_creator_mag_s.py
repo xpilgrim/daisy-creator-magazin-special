@@ -213,6 +213,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 return
         else:
             counterLines = self.readCounterFile()
+            nCounterLines = len(counterLines)
 
         self.showDebugMessage(self.lineEditCopySource.text())
         self.showDebugMessage(self.lineEditCopyDest.text())
@@ -242,8 +243,14 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
         self.textEdit.append("<b>Kopieren:</b>")
         z = 0
-        zList = len(dirsSource)
-        self.showDebugMessage(zList)
+        nDirsSource = len(dirsSource)
+        if nCounterLines != nDirsSource:
+            self.textEdit.append(
+                    "<b><font color='red'>"
+                    + "Anzahl der mp3-Dateien stimmt nicht mit Counter-Datei "
+                    + "ueberein!</font></b>:")
+
+        self.showDebugMessage(nDirsSource)
         dirsSource.sort()
         # loop trough files
         for item in dirsSource:
@@ -257,17 +264,13 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             if fileExist is False:
                 self.showDebugMessage("File not exists")
                 # change max number and update progress
-                zList = zList - 1
-                pZ = z * 100 / zList
+                nDirsSource = nDirsSource - 1
+                pZ = z * 100 / nDirsSource
                 self.progressBarCopy.setValue(pZ)
                 self.textEdit.append(
                         "<b>Datei konnte nicht kopiert werden: </b>"
                         + fileToCopySource)
                 self.showDebugMessage(fileToCopySource)
-
-            # TODO:  Irgendwie die max Anzahl von files in Counterdatei ermitteln
-            # und mit max Anzahl der audios vergleichen, wenn nicht gleich dann gar nicht Daisy zulassen
-
                 self.textEdit.append("<b>Uebersprungen</b>:")
                 self.textEdit.append(fileToCopySource)
                 continue
@@ -311,8 +314,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.checkCangeId3(fileToCopyDest)
             z += 1
             self.showDebugMessage(z)
-            self.showDebugMessage(zList)
-            pZ = z * 100 / zList
+            self.showDebugMessage(nDirsSource)
+            pZ = z * 100 / nDirsSource
             self.showDebugMessage(pZ)
             self.progressBarCopy.setValue(pZ)
 
@@ -455,6 +458,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 u"<b>Bitrate wurde NICHT geaendern bei</b>: "
                 + fileToCopyDest)
         return isChangedAndCopy
+
+    def compareFiles(self,):
+        """compare files from source with conter file"""
 
     def encodeFile(self, fileToCopySource, fileToCopyDest):
         """mp3-files mit entspr Bitrate encoden"""
