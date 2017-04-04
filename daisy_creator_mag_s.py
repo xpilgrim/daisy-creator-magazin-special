@@ -39,6 +39,7 @@ import daisy_creator_mag_s_ui
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
 #TODO: zeilenlaenge in write smil kuerzen
+#TODO: Connect Quit-Button on Copy Tab
 
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
@@ -169,7 +170,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(dirDest)
 
     def actionOpenCounterFile(self):
-        """Counterdatei for Steuerung"""
+        """counter file for renaming of files"""
         file1 = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Counter-Datei",
@@ -195,7 +196,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.lineEditMetaSource.setText(mfile)
 
     def actionRunCopy(self):
-        """Hauptroutine zum Kopieren"""
+        """main function for copy"""
         if self.lineEditCopySource.text() == "Quell-Ordner":
             errorMessage = u"Quell-Ordner wurde nicht ausgewaehlt.."
             self.showDialogCritical(errorMessage)
@@ -340,7 +341,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.lineEditDaisySource.setText(self.lineEditCopyDest.text())
 
     def copyFile(self, fileToCopySource, fileToCopyDest):
-        """Datei kopieren"""
+        """copy file"""
         try:
             shutil.copy(fileToCopySource, fileToCopyDest)
         except Exception, e:
@@ -349,7 +350,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(logMessage + fileToCopyDest)
 
     def copyIntro(self):
-        """Intro kopieren"""
+        """copy intro"""
         fileToCopySource = (self.app_bhzPfadIntro + "/Intro_"
                             + self.comboBoxCopyBhz.currentText() + ".mp3")
         fileToCopyDest = (self.lineEditCopyDest.text() + "/02_"
@@ -371,7 +372,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.checkCangeId3(fileToCopyDest)
 
     def copyAusgabeAnsage(self):
-        """Intro kopieren"""
+        """copy narration of issue"""
         pfadAusgabe = (self.app_bhzPfadAusgabeansage + "_"
                     + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_"
                     + self.comboBoxCopyBhz.currentText())
@@ -398,7 +399,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.checkCangeId3(fileToCopyDest)
 
     def readCounterFile(self):
-        """Datei mit Dateinamen und Counter einlesen """
+        """reaf counter file with filenames and counter """
         try:
             f = open(str(self.lineEditFileCounter.text()), 'r')
             lines = f.readlines()
@@ -415,7 +416,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         return lines
 
     def checkCangeId3(self, fileToCopyDest):
-        """id3 Tags pruefen, ev. entfernen"""
+        """check id3 tags, remove it when present"""
         tag = None
         try:
             audio = ID3(fileToCopyDest)
@@ -435,7 +436,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                     + fileToCopyDest)
 
     def checkChangeBitrateAndCopy(self, fileToCopySource, fileToCopyDest):
-        """Bitrate aendern und an Ziel encodieren"""
+        """change bitrate and encode in destination"""
         isChangedAndCopy = None
         audioSource = MP3(fileToCopySource)
         if (audioSource.info.bitrate ==
@@ -490,7 +491,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         return "OK"
 
     def encodeFile(self, fileToCopySource, fileToCopyDest):
-        """mp3-files mit entspr Bitrate encoden"""
+        """encode mp3-files"""
         self.showDebugMessage(u"encode_file")
         #damit die uebergabe der befehle richtig klappt,
         # muessen alle cmds im richtigen zeichensatz als strings encoded sein
@@ -539,6 +540,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             return None
 
     def metaLoadFile(self):
+        """load meta file"""
         fileExist = os.path.isfile(self.lineEditMetaSource.text())
         if fileExist is False:
             self.showDebugMessage("File not exists")
@@ -564,7 +566,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.lineEditMetaYear.setText(config.get('Daisy_Meta', 'Jahr'))
 
     def actionRunDaisy(self):
-        """Daisy-Fileset erzeugen"""
+        """create Daisy-Fileset"""
         if self.lineEditDaisySource.text() == "Quell-Ordner":
             errorMessage = u"Quell-Ordner wurde nicht ausgewaehlt.."
             self.showDialogCritical(errorMessage)
@@ -614,7 +616,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.progressBarDaisy.setValue(100)
 
     def calcAudioLengt(self, dirAudios):
-        """Gesamtlange der Audios ermitteln"""
+        """calc length of all audios"""
         totalAudioLength = 0
         lTotalElapsedTime = []
         lTotalElapsedTime.append(0)
@@ -747,7 +749,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         fOutFile.close
 
     def writeMasterSmil(self, cTotalTime, dirAudios):
-        """MasterSmil-Page schreiben"""
+        """write MasterSmil-Page """
         try:
             fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), "master.smil") , 'w')
         except IOError as (errno, strerror):
@@ -788,7 +790,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         fOutFile.close
 
     def writeSmil(self, lTotalElapsedTime, lFileTime, dirAudios):
-        """Smil-Pages schreiben"""
+        """write Smil-Pages"""
         z = 0
         for item in dirAudios:
             z += 1
