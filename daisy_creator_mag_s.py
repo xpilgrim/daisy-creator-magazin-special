@@ -7,14 +7,20 @@ Distributed under the terms of GNU GPL version 2 or later
 Copyright (C) Joerg Sorge joergsorge at googel
 2012-06-20
 
+This program is for
+- copy mp3 files for processing for DAISY Talking Books
+- create DAISY Fileset
+
 Dieses Programm
 - kopiert mp3-Files fuer die Verarbeitung zu Daisy-Buechern
 - erzeugt die noetigen Dateien fuer eine Daisy-Struktur.
 
+Additional python modul necessary:
 Zusatz-Modul benoetigt:
 python-mutagen
 sudo apt-get install python-mutagen
 
+Update gui with:
 GUI aktualisieren mit:
 pyuic4 daisy_creator_mag_s.ui -o daisy_creator_mag_s_ui.py
 """
@@ -38,7 +44,6 @@ import daisy_creator_mag_s_ui
 #TODO: Check for special characters in filenames
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Correction of checks for depth from daisy_creator_mag
-#TODO: zeilenlaenge in write smil kuerzen
 #TODO: Connect Quit-Button on Copy Tab
 
 
@@ -751,21 +756,28 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def writeMasterSmil(self, cTotalTime, dirAudios):
         """write MasterSmil-Page """
         try:
-            fOutFile = open(os.path.join(str(self.lineEditDaisySource.text()), "master.smil") , 'w')
+            fOutFile = open(
+                os.path.join(
+                str(self.lineEditDaisySource.text()), "master.smil"), 'w')
         except IOError as (errno, strerror):
             self.showDebugMessage("I/O error({0}): {1}".format(errno, strerror))
             return
         self.textEditDaisy.append(u"<b>MasterSmil-Datei schreiben</b>")
         fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
-        fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
-        fOutFile.write('<smil>'+'\r\n')
+        fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN"'
+            + ' "http://www.w3.org/TR/REC-smil/SMIL10.dtd">' + '\r\n')
+        fOutFile.write('<smil>' + '\r\n')
         fOutFile.write('<head>' + '\r\n')
         fOutFile.write('<meta name="dc:format" content="Daisy 2.02"/>' + '\r\n')
-        fOutFile.write('<meta name="dc:identifier" content="' + self.lineEditMetaRefOrig.text() + '"/>'+'\r\n')
-        fOutFile.write('<meta name="dc:title" content="' + self.lineEditMetaTitle.text() + '"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:generator" content="KOM-IN-DaisyCreator"/>' + '\r\n')
-        fOutFile.write('<meta name="ncc:format" content="Daisy 2.0"/>'+'\r\n')
-        fOutFile.write('<meta name="ncc:timeInThisSmil" content="' + cTotalTime + '" />' + '\r\n')
+        fOutFile.write('<meta name="dc:identifier" content="'
+            + self.lineEditMetaRefOrig.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="dc:title" content="'
+            + self.lineEditMetaTitle.text() + '"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:generator" '
+            + 'content="KOM-IN-DaisyCreator"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:format" content="Daisy 2.0"/>' + '\r\n')
+        fOutFile.write('<meta name="ncc:timeInThisSmil" content="'
+            + cTotalTime + '" />' + '\r\n')
 
         fOutFile.write('<layout>' + '\r\n')
         fOutFile.write('<region id="txt-view" />' + '\r\n')
@@ -804,14 +816,16 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 self.showDebugMessage(
                             "I/O error({0}): {1}".format(errno, strerror))
                 return
-            self.textEditDaisy.append(str(z).zfill(4) + u".smil - File schreiben")
-            # trennen
+            self.textEditDaisy.append(str(z).zfill(4)
+                + u".smil - File schreiben")
+            # split
             itemSplit = self.splitFilename(item)
             #cAuthor = self.extractAuthor(itemSplit)
             cTitle = self.extractTitle(itemSplit)
 
             fOutFile.write('<?xml version="1.0" encoding="utf-8"?>' + '\r\n')
-            fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN" "http://www.w3.org/TR/REC-smil/SMIL10.dtd">'+'\r\n')
+            fOutFile.write('<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 1.0//EN"'
+                + ' "http://www.w3.org/TR/REC-smil/SMIL10.dtd">' + '\r\n')
             fOutFile.write('<smil>' + '\r\n')
             fOutFile.write('<head>' + '\r\n')
             fOutFile.write(
@@ -822,7 +836,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             print splittedTtotalElapsedTime
             totalElapsedTimehhmmss = splittedTtotalElapsedTime[0].zfill(8)
             if z == 1:
-                # erster eintrag ergibt nur einen split
+                # first entry has only one split
                 totalElapsedTimeMilliMicro = "000"
             else:
                 totalElapsedTimeMilliMicro = splittedTtotalElapsedTime[1][0:3]
@@ -835,7 +849,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             fileTime = timedelta(seconds=lFileTime[z - 1])
             splittedFileTime = str(fileTime).split(".")
             FileTimehhmmss = splittedFileTime[0].zfill(8)
-            # wenn keine Millisicrosec gibts nur ein Element in der Liste
+            # if no millissec, only one element is in the list
             if len(splittedFileTime) > 1:
                 if len(splittedFileTime[1]) >= 3:
                     fileTimeMilliMicro = splittedFileTime[1][0:3]
