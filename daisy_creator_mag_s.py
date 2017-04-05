@@ -10,10 +10,12 @@ Copyright (C) Joerg Sorge joergsorge at googel
 This program is for
 - copy mp3 files for processing for DAISY Talking Books
 - create DAISY Fileset
+For now, it's only possible to create a flat DAISY-Structure
 
 Dieses Programm
 - kopiert mp3-Files fuer die Verarbeitung zu Daisy-Buechern
 - erzeugt die noetigen Dateien fuer eine Daisy-Struktur.
+Bisher kann nur eine DAISY-Ebene erzeugt werden.
 
 Additional python modul necessary:
 Zusatz-Modul benoetigt:
@@ -43,7 +45,6 @@ import daisy_creator_mag_s_ui
 
 #TODO: Check for special characters in filenames
 #TODO: check ob alle audio-files da sind, die auch in counterdatei sind
-#TODO: Correction of checks for depth from daisy_creator_mag
 #TODO: Connect Quit-Button on Copy Tab
 
 
@@ -965,7 +966,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         # Bhz in Combo
         for item in self.app_bhzItems:
             self.comboBoxCopyBhz.addItem(item)
-        # Ausgabe in Comboncc:maxPageNormal
+        # Issue nr in Comboncc:maxPageNormal
         prevYear = str(datetime.datetime.now().year - 1)
         currentYear = str(datetime.datetime.now().year)
         nextYear = str(datetime.datetime.now().year + 1)
@@ -975,7 +976,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.comboBoxCopyBhzAusg.addItem(currentYear + "_" + item)
         for item in self.app_nextAusgItems:
             self.comboBoxCopyBhzAusg.addItem(nextYear + "_" + item)
-        # Trenner in Combo
+        # Separator in Combo
         self.comboBoxDaisyTrenner.addItem("_-_")
         self.comboBoxDaisyTrenner.addItem("Ausgabe-Nr.")
         self.comboBoxDaisyTrenner.addItem(prevYear)
@@ -988,12 +989,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.comboBoxPrefBitrate.addItem("96")
         self.comboBoxPrefBitrate.addItem("128")
         self.comboBoxPrefBitrate.setCurrentIndex(1)
-        # Vorbelegung Checkboxen
+        # Conditions Checkboxes
         self.checkBoxCopyBhzIntro.setChecked(True)
         self.checkBoxCopyBhzAusgAnsage.setChecked(True)
         self.checkBoxCopyID3Change.setChecked(True)
         self.checkBoxCopyBitrateChange.setChecked(True)
-        # Vorbelegung spinboxen
+        # Conditions spinboxes
         self.spinBoxLevel.setValue(1)
         self.spinBoxPages.setValue(0)
         # Help-Text
