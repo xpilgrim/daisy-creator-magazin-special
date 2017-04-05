@@ -1,0 +1,4 @@
+*.config
+*.nja
+__init__.py
+*.pyc
