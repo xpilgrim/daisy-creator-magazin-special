@@ -20,7 +20,8 @@ Bisher kann nur eine DAISY-Ebene erzeugt werden.
 Additional python modul necessary:
 Zusatz-Modul benoetigt:
 python-mutagen
-sudo apt-get install python-mutagen
+lame
+sudo apt-get install python-mutagen lame
 
 Update gui with:
 GUI aktualisieren mit:
@@ -70,6 +71,8 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.app_bhzPathMeta = QtCore.QDir.homePath()
         self.app_bhzPathIssueAnnouncement = QtCore.QDir.homePath()
         self.app_bhzPathIntro = QtCore.QDir.homePath()
+        # we need ext package lame
+        self.app_lame = ""
         self.connectActions()
 
     def connectActions(self):
@@ -107,6 +110,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.app_bhzPathIntro = config.get('Ordner', 'BHZ-Intro')
         self.app_bhzItems = config.get('Blindenhoerzeitschriften',
                                                         'BHZ').split(",")
+        self.app_lame = config.get('Programme', 'LAME')
 
     def readHelp(self):
         """read Readme from file"""
@@ -342,6 +346,26 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.metaLoadFile()
         # enter path of source and destination
         self.lineEditDaisySource.setText(self.lineEditCopyDest.text())
+
+    def checkPackages(self, package):
+        """
+        check if package is installed
+        needs subprocess, os
+        http://stackoverflow.com/
+        questions/11210104/check-if-a-program-exists-from-a-python-script
+        """
+        try:
+            devnull = open(os.devnull, "w")
+            subprocess.Popen([package], stdout=devnull,
+                            stderr=devnull).communicate()
+        except OSError as e:
+            if e.errno == os.errno.ENOENT:
+                errorMessage = (u"Es fehlt das Paket:\n " + package
+                                + u"\nZur Nutzung des vollen Funktionsumfanges "
+                                + "muss es installiert werden!")
+                self.showDialogCritical(errorMessage)
+                self.textEdit.append(
+                    "<font color='red'>Es fehlt das Paket: </font> " + package)
 
     def copyFile(self, fileToCopySource, fileToCopyDest):
         """copy file"""
@@ -984,6 +1008,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def main(self):
         self.showDebugMessage(u"let's rock")
         self.readConfig()
+        self.checkPackages(self.app_lame)
         self.progressBarCopy.setValue(0)
         self.progressBarDaisy.setValue(0)
         # Bhz in Combo

@@ -10,3 +10,7 @@ BHZ-Intro=/home/mydir/data_bhz/Intros
 # Magazins, comma separated without spaces
 [Blindenhoerzeitschriften]
 BHZ=amnesty_journal, my_mag, my_mag_1
+
+# Extern Programms/ Packages, needed for poper function
+[Programme]
+LAME=/usr/bin/lame
