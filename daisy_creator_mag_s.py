@@ -43,8 +43,6 @@ from mutagen.id3 import ID3NoHeaderError
 import ConfigParser
 import daisy_creator_mag_s_ui
 
-#TODO: Check for special characters in filenames
-#TODO: check ob alle audio-files da sind, die auch in counterdatei sind
 #TODO: Connect Quit-Button on Copy Tab
 
 
@@ -254,14 +252,14 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             self.textEdit.append(
                     "<b><font color='red'>"
                     + "Anzahl der mp3-Dateien (" + str(nDirsSource)
-                    + ")stimmt nicht mit Counter-Datei ("
+                    + ") stimmt nicht mit Counter-Datei ("
                     + str(nCounterLines)
                     + ") ueberein!</font></b>")
 
         filesOK = self.compareFiles(dirsSource, counterLines)
         if filesOK is None:
             return
-        #return
+
         self.textEdit.append("<b>Kopieren:</b>")
         self.showDebugMessage(nDirsSource)
         dirsSource.sort()
@@ -490,8 +488,34 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             if nFound == 0:
                 self.textEdit.append(
                 "<b><font color='red'>"
-                + "Dateiname in Counterdatei nicht gefunden</font></b>:")
+                + "Fuer diese mp3-Datei keine Entsprechung in "
+                + "Counterdatei gefunden"
+                + "</font></b>:")
                 self.textEdit.append(item)
+                self.textEdit.append("<b>Bearbeitung abgebrochen!</b>")
+                return None
+
+        # now let's take a look from the other site
+        for line in counterLines:
+            #self.textEdit.append("counter: " + line[3:nLenLine])
+            # remove line break
+            nLenLine = len(line) - 1
+            nFound = 0
+            for item in dirsSource:
+                #self.textEdit.append(item)
+                if (item[len(item) - 4:len(item)] != ".MP3"
+                            and item[len(item) - 4:len(item)] != ".mp3"):
+                    continue
+                if line[3:nLenLine] == item:
+                    nFound += 1
+                    #self.textEdit.append("found: " +line[3:nLenLine])
+
+            if nFound == 0:
+                self.textEdit.append(
+                "<b><font color='red'>"
+                + "Keine mp3-Datei zu diesem Eintrag in "
+                + "Counterdatei gefunden</font></b>:")
+                self.textEdit.append(line[3:nLenLine])
                 self.textEdit.append("<b>Bearbeitung abgebrochen!</b>")
                 return None
         return "OK"
