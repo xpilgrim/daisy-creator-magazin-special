@@ -8,14 +8,25 @@ basics
 ------
 
 Basis of the functionality are the filenames of existing audio-files (mp3).
+Additionally here is used a so called counter file to setup the structure of the dtb.
 
 The syntax of filenames must be as follows:
 
-nnnn_n_title.mp3
+author_-_title.mp3
 
 > nnnn is a 4-digit number, it is usesd for right sorting
 
-> n is a 1 digit number, used for derivation of headings in ncc-file
+> author describes the last name of the author
 
 > title is to describe the content of the file
+
+
+The syntax of the counter file must be as follows:
+
+nn_author_-_title.mp3
+
+> nn is a two digit for the order of the items
+
+While processing, the audio files will be renamed 
+to start with the number taken from the counter file.
 
