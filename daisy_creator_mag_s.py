@@ -86,6 +86,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.toolButtonDaisySource.clicked.connect(self.actionOpenDaisySource)
         self.pushButtonClose1.clicked.connect(self.actionQuit)
         self.pushButtonClose2.clicked.connect(self.actionQuit)
+        self.pushButtonClose3.clicked.connect(self.actionQuit)
 
     def readConfig(self):
         """read Config from file"""
