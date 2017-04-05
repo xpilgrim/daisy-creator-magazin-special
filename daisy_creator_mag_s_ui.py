@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'daisy_creator_mag_s.ui'
 #
-# Created: Fri May  6 17:17:24 2016
-#      by: PyQt4 UI code generator 4.10.4
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -78,9 +77,9 @@ class Ui_DaisyMain(object):
         self.comboBoxCopyBhz = QtGui.QComboBox(self.tab_1)
         self.comboBoxCopyBhz.setGeometry(QtCore.QRect(24, 270, 610, 27))
         self.comboBoxCopyBhz.setObjectName(_fromUtf8("comboBoxCopyBhz"))
-        self.checkBoxCopyBhzAusgAnsage = QtGui.QCheckBox(self.tab_1)
-        self.checkBoxCopyBhzAusgAnsage.setGeometry(QtCore.QRect(25, 338, 301, 22))
-        self.checkBoxCopyBhzAusgAnsage.setObjectName(_fromUtf8("checkBoxCopyBhzAusgAnsage"))
+        self.checkBoxCopyBhzIssueAnnouncement = QtGui.QCheckBox(self.tab_1)
+        self.checkBoxCopyBhzIssueAnnouncement.setGeometry(QtCore.QRect(25, 338, 301, 22))
+        self.checkBoxCopyBhzIssueAnnouncement.setObjectName(_fromUtf8("checkBoxCopyBhzIssueAnnouncement"))
         self.lineEditCopySource = QtGui.QLineEdit(self.tab_1)
         self.lineEditCopySource.setGeometry(QtCore.QRect(24, 93, 610, 27))
         self.lineEditCopySource.setObjectName(_fromUtf8("lineEditCopySource"))
@@ -96,9 +95,11 @@ class Ui_DaisyMain(object):
         self.line.setFrameShadow(QtGui.QFrame.Sunken)
         self.line.setObjectName(_fromUtf8("line"))
         self.spinBoxLevel = QtGui.QSpinBox(self.tab_1)
+        self.spinBoxLevel.setEnabled(False)
         self.spinBoxLevel.setGeometry(QtCore.QRect(140, 410, 59, 27))
         self.spinBoxLevel.setObjectName(_fromUtf8("spinBoxLevel"))
         self.spinBoxPages = QtGui.QSpinBox(self.tab_1)
+        self.spinBoxPages.setEnabled(False)
         self.spinBoxPages.setGeometry(QtCore.QRect(340, 410, 59, 27))
         self.spinBoxPages.setObjectName(_fromUtf8("spinBoxPages"))
         self.label = QtGui.QLabel(self.tab_1)
@@ -132,9 +133,9 @@ class Ui_DaisyMain(object):
         self.commandLinkButton = QtGui.QCommandLinkButton(self.tab_2)
         self.commandLinkButton.setGeometry(QtCore.QRect(640, 440, 111, 191))
         self.commandLinkButton.setObjectName(_fromUtf8("commandLinkButton"))
-        self.pushButtonClose1_2 = QtGui.QPushButton(self.tab_2)
-        self.pushButtonClose1_2.setGeometry(QtCore.QRect(640, 640, 111, 27))
-        self.pushButtonClose1_2.setObjectName(_fromUtf8("pushButtonClose1_2"))
+        self.pushButtonClose2 = QtGui.QPushButton(self.tab_2)
+        self.pushButtonClose2.setGeometry(QtCore.QRect(640, 640, 111, 27))
+        self.pushButtonClose2.setObjectName(_fromUtf8("pushButtonClose2"))
         self.label_22 = QtGui.QLabel(self.tab_2)
         self.label_22.setGeometry(QtCore.QRect(20, 30, 610, 25))
         font = QtGui.QFont()
@@ -259,9 +260,9 @@ class Ui_DaisyMain(object):
         self.progressBarDaisy.setGeometry(QtCore.QRect(24, 641, 610, 25))
         self.progressBarDaisy.setProperty("value", 24)
         self.progressBarDaisy.setObjectName(_fromUtf8("progressBarDaisy"))
-        self.pushButtonClose2 = QtGui.QPushButton(self.tab_4)
-        self.pushButtonClose2.setGeometry(QtCore.QRect(640, 640, 111, 27))
-        self.pushButtonClose2.setObjectName(_fromUtf8("pushButtonClose2"))
+        self.pushButtonClose3 = QtGui.QPushButton(self.tab_4)
+        self.pushButtonClose3.setGeometry(QtCore.QRect(640, 640, 111, 27))
+        self.pushButtonClose3.setObjectName(_fromUtf8("pushButtonClose3"))
         self.tabWidget.addTab(self.tab_4, _fromUtf8(""))
         self.tab_5 = QtGui.QWidget()
         self.tab_5.setObjectName(_fromUtf8("tab_5"))
@@ -299,7 +300,7 @@ class Ui_DaisyMain(object):
         self.label_6.setText(_translate("DaisyMain", "Counter", None))
         self.lineEditCopyDest.setText(_translate("DaisyMain", "Ziel-Ordner", None))
         self.checkBoxCopyID3Change.setText(_translate("DaisyMain", "ID3-Tags entfernen", None))
-        self.checkBoxCopyBhzAusgAnsage.setText(_translate("DaisyMain", "Ausgabe-Ansage kopieren", None))
+        self.checkBoxCopyBhzIssueAnnouncement.setText(_translate("DaisyMain", "Ausgabe-Ansage kopieren", None))
         self.lineEditCopySource.setText(_translate("DaisyMain", "Quell-Ordner", None))
         self.label_2.setText(_translate("DaisyMain", "Quelle und Ziel", None))
         self.label.setText(_translate("DaisyMain", "Anzahl Ebenen", None))
@@ -308,7 +309,7 @@ class Ui_DaisyMain(object):
         self.label_13.setText(_translate("DaisyMain", "Datenrate", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("DaisyMain", "1 Settings", None))
         self.commandLinkButton.setText(_translate("DaisyMain", "Kopieren", None))
-        self.pushButtonClose1_2.setText(_translate("DaisyMain", "Quit", None))
+        self.pushButtonClose2.setText(_translate("DaisyMain", "Quit", None))
         self.label_22.setText(_translate("DaisyMain", "Copy - Tool", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("DaisyMain", "2 Copy", None))
         self.label_8.setText(_translate("DaisyMain", "Daisy-Metadaten-Tool", None))
@@ -341,7 +342,7 @@ class Ui_DaisyMain(object):
         self.toolButtonDaisySource.setText(_translate("DaisyMain", "...", None))
         self.lineEditDaisySource.setText(_translate("DaisyMain", "Quell-Ordner", None))
         self.commandLinkButtonDaisy.setText(_translate("DaisyMain", "Daisyfizieren", None))
-        self.pushButtonClose2.setText(_translate("DaisyMain", "Quit", None))
+        self.pushButtonClose3.setText(_translate("DaisyMain", "Quit", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("DaisyMain", "4 Daisy", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("DaisyMain", "Help", None))
 

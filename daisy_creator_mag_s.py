@@ -43,8 +43,6 @@ from mutagen.id3 import ID3NoHeaderError
 import ConfigParser
 import daisy_creator_mag_s_ui
 
-#TODO: Connect Quit-Button on Copy Tab
-
 
 class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     """
@@ -67,11 +65,11 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
             "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18",
             "19", "20", "21", "22", "23", "24", "25"]
         self.app_nextAusgItems = ["01", "02", "03", "04"]
-        self.app_bhzPfad = QtCore.QDir.homePath()
-        self.app_bhzPfadZiel = QtCore.QDir.homePath()
-        self.app_bhzPfadMeta = QtCore.QDir.homePath()
-        self.app_bhzPfadAusgabeansage = QtCore.QDir.homePath()
-        self.app_bhzPfadIntro = QtCore.QDir.homePath()
+        self.app_bhzPath = QtCore.QDir.homePath()
+        self.app_bhzPathDest = QtCore.QDir.homePath()
+        self.app_bhzPathMeta = QtCore.QDir.homePath()
+        self.app_bhzPathIssueAnnouncement = QtCore.QDir.homePath()
+        self.app_bhzPathIntro = QtCore.QDir.homePath()
         self.connectActions()
 
     def connectActions(self):
@@ -101,12 +99,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
         config = ConfigParser.RawConfigParser()
         config.read("daisy_creator_mag_s.config")
-        self.app_bhzPfad = config.get('Ordner', 'BHZ')
-        self.app_bhzPfadZiel = config.get('Ordner', 'BHZ-Ziel')
-        self.app_bhzPfadMeta = config.get('Ordner', 'BHZ-Meta')
-        self.app_bhzPfadAusgabeansage = config.get('Ordner',
+        self.app_bhzPath = config.get('Ordner', 'BHZ')
+        self.app_bhzPathDest = config.get('Ordner', 'BHZ-Ziel')
+        self.app_bhzPathMeta = config.get('Ordner', 'BHZ-Meta')
+        self.app_bhzPathIssueAnnouncement = config.get('Ordner',
                                                     'BHZ-Ausgabeansage')
-        self.app_bhzPfadIntro = config.get('Ordner', 'BHZ-Intro')
+        self.app_bhzPathIntro = config.get('Ordner', 'BHZ-Intro')
         self.app_bhzItems = config.get('Blindenhoerzeitschriften',
                                                         'BHZ').split(",")
 
@@ -137,7 +135,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         dirSource = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Quell-Ordner",
-                        self.app_bhzPfad
+                        self.app_bhzPath
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
@@ -151,7 +149,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         dirSource = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Quell-Ordner",
-                        self.app_bhzPfadZiel
+                        self.app_bhzPathDest
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
@@ -165,7 +163,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         dirDest = QtGui.QFileDialog.getExistingDirectory(
                         self,
                         "Ziel-Ordner",
-                        self.app_bhzPfadZiel
+                        self.app_bhzPath
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
@@ -179,7 +177,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         file1 = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Counter-Datei",
-                        self.app_bhzPfad
+                        self.app_bhzPath
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
@@ -193,7 +191,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         mfile = QtGui.QFileDialog.getOpenFileName(
                         self,
                         "Daisy_Meta",
-                        self.app_bhzPfadMeta
+                        self.app_bhzPathMeta
                     )
         # Don't attempt to open if open dialog
         # was cancelled away.
@@ -244,7 +242,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         zCounter = 0
         if self.checkBoxCopyBhzIntro.isChecked():
             zCounter += 1
-        if self.checkBoxCopyBhzAusgAnsage.isChecked():
+        if self.checkBoxCopyBhzIssueAnnouncement.isChecked():
             zCounter += 1
 
         z = 0
@@ -334,12 +332,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         if self.checkBoxCopyBhzIntro.isChecked():
             self.copyIntro()
 
-        if self.checkBoxCopyBhzAusgAnsage.isChecked():
-            self.copyAusgabeAnsage()
+        if self.checkBoxCopyBhzIssueAnnouncement.isChecked():
+            self.copyIssueAnnouncement()
 
         # load metadata
         self.lineEditMetaSource.setText(
-            self.app_bhzPfadMeta + "/Daisy_Meta_"
+            self.app_bhzPathMeta + "/Daisy_Meta_"
             + self.comboBoxCopyBhz.currentText())
         self.metaLoadFile()
         # enter path of source and destination
@@ -356,7 +354,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
 
     def copyIntro(self):
         """copy intro"""
-        fileToCopySource = (self.app_bhzPfadIntro + "/Intro_"
+        fileToCopySource = (self.app_bhzPathIntro + "/Intro_"
                             + self.comboBoxCopyBhz.currentText() + ".mp3")
         fileToCopyDest = (self.lineEditCopyDest.text() + "/02_"
                     + self.comboBoxCopyBhz.currentText() + "_-_"
@@ -376,9 +374,9 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.copyFile(fileToCopySource, fileToCopyDest)
         self.checkCangeId3(fileToCopyDest)
 
-    def copyAusgabeAnsage(self):
-        """copy narration of issue"""
-        pfadAusgabe = (self.app_bhzPfadAusgabeansage + "_"
+    def copyIssueAnnouncement(self):
+        """copy announcement of issue"""
+        pfadAusgabe = (self.app_bhzPathIssueAnnouncement + "_"
                     + self.comboBoxCopyBhzAusg.currentText()[0:4] + "_"
                     + self.comboBoxCopyBhz.currentText())
         self.showDebugMessage(pfadAusgabe)
@@ -1016,7 +1014,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         self.comboBoxPrefBitrate.setCurrentIndex(1)
         # Conditions Checkboxes
         self.checkBoxCopyBhzIntro.setChecked(True)
-        self.checkBoxCopyBhzAusgAnsage.setChecked(True)
+        self.checkBoxCopyBhzIssueAnnouncement.setChecked(True)
         self.checkBoxCopyID3Change.setChecked(True)
         self.checkBoxCopyBitrateChange.setChecked(True)
         # Conditions spinboxes
