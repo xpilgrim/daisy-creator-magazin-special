@@ -367,6 +367,54 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
                 self.textEdit.append(
                     "<font color='red'>Es fehlt das Paket: </font> " + package)
 
+    def checkFilename(self, fileName):
+        """check for spaces and non ascii characters"""
+        error = None
+        self.textEdit.append(fileName)
+        if type(fileName) is str:
+            try:
+                cfileName = fileName.encode("ascii")
+            except Exception, e:
+                error = str(e)
+        else:
+            # maybe fileName could be QString, so we must convert it
+            try:
+                cfileName = str(fileName)
+                self.textEdit.append(cfileName)
+            except Exception, e:
+                error = str(e)
+
+        if error is not None:
+            if (error.find("'ascii' codec can't encode character") != -1
+                or
+                error.find("'ascii' codec can't decode byte") != -1):
+                errorMessage = ("<b>Unerlaubte(s) Zeichen im Dateinamen!</b>")
+                self.showDebugMessage(errorMessage)
+                self.textEdit.append(errorMessage)
+                return None
+            else:
+                errorMessage = ("<b>Fehler im Dateinamen!</b>")
+                self.showDebugMessage(errorMessage)
+                self.textEdit.append(errorMessage)
+                return None
+
+        if cfileName.find(" ") != -1:
+            errorMessage = ("<b>Unerlaubtes Leerzeichen im Dateinamen!</b>")
+            self.textEdit.append(errorMessage)
+            self.tabWidget.setCurrentIndex(1)
+            return None
+        return "OK"
+
+    def checkFilenames(self, filesSource):
+        for item in filesSource:
+            if (item[len(item) - 4:len(item)] != ".MP3"
+                                and item[len(item) - 4:len(item)] != ".mp3"):
+                continue
+            checkOK = self.checkFilename(item)
+            if checkOK is None:
+                return None
+        return "OK"
+
     def copyFile(self, fileToCopySource, fileToCopyDest):
         """copy file"""
         try:
@@ -494,7 +542,12 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
     def compareFiles(self, dirsSource, counterLines):
         """compare files from source with conter file"""
         self.showDebugMessage(counterLines)
-        self.textEdit.append("<b>Pruefen...</b>")
+        self.textEdit.append("<b>Dateinamen pruefen...</b>")
+        checkOK = self.checkFilenames(dirsSource)
+        if checkOK is None:
+            return
+
+        self.textEdit.append("<b>Dateien pruefen...</b>")
         # loop trough files
         for item in dirsSource:
             if (item[len(item) - 4:len(item)] != ".MP3"
