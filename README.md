@@ -30,3 +30,5 @@ nn_author_-_title.mp3
 While processing, the audio files will be renamed 
 to start with the number taken from the counter file.
 
+Credits:
+Desktop-Icon: [Navigation toolbar bottom icon credits](https://icons8.com/icon/55062/Navigation-Toolbar-Bottom)

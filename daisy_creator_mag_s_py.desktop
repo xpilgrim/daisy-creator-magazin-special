@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=Daisy-Creator
+Icon=/home/buero3/Projekte_Develop/git/daisy-creator-magazin-special/icons8-Navigation-Toolbar-Bottom-64.png
+Path=/home/buero3/Projekte_Develop/git/daisy-creator-magazin-special
+Exec=/usr/bin/python /home/buero3/Projekte_Develop/git/daisy-creator-magazin-special/daisy_creator_mag_s.py
+StartupNotify=false
+StartupWMClass=Daisy_creator_mag_s.py
+OnlyShowIn=Unity;
+X-UnityGenerated=true
