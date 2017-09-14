@@ -420,7 +420,7 @@ class DaisyCopy(QtGui.QMainWindow, daisy_creator_mag_s_ui.Ui_DaisyMain):
         try:
             shutil.copy(fileToCopySource, fileToCopyDest)
         except Exception, e:
-            logMessage = u"copy_file Error: %s" % str(e)
+            logMessage = "copy_file Error: %s" % str(e).decode('utf-8')
             self.showDebugMessage(logMessage)
             self.textEdit.append(logMessage + fileToCopyDest)
 
